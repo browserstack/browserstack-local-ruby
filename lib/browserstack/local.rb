@@ -1,4 +1,5 @@
 require 'browserstack/localbinary'
+require 'browserstack/localexception'
 
 module BrowserStack
 
@@ -51,17 +52,24 @@ class Local
     end
 
     @process = IO.popen(command, "w+")
+    @stdout = @process # File.open("local.log", "r")
 
     while true
-      line = @process.readline
+      begin
+        line = @stdout.readline
+      rescue EOFError => e
+        sleep 1
+        next
+      end
       break if line.nil?
       if line.match(/\*\*\* Error\:/)
-        @process.close
+        #@stdout.close
         raise BrowserStack::LocalException.new(line)
         return
       end
       if line.strip == "Press Ctrl-C to exit"
         @pid = @process.pid
+        #@stdout.close
         return
       end
     end
@@ -79,16 +87,17 @@ class Local
 
   def stop
     return if @pid.nil?
-    Process.kill("INT", @pid)
+    Process.kill("TERM", @pid)
     @process.close
+    while true
+      break if !self.isRunning
+      sleep 1
+    end
   end
 
   def command
     "#{@binary_path} #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_flag} #{@verbose_flag} #{@hosts}".strip
   end
-end
-
-class LocalException < Exception
 end
 
 end

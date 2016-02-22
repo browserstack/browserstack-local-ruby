@@ -1,6 +1,8 @@
 require 'net/http'
 require 'rbconfig'
 require 'openssl'
+require 'tmpdir'
+require 'browserstack/localexception'
 
 module BrowserStack
   
@@ -20,10 +22,15 @@ class LocalBinary
         "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32"
       end
     end
+
+    @ordered_paths = [
+      File.expand_path('~'), '.browserstack',
+      Dir.pwd,
+      Dir.tmpdir
+    ]
   end
 
-  def download
-    dest_parent_dir = File.join(File.expand_path('~'), '.browserstack')
+  def download(dest_parent_dir)
     unless File.exists? dest_parent_dir
       Dir.mkdir dest_parent_dir
     end
@@ -44,12 +51,37 @@ class LocalBinary
   end
 
   def binary_path
-    dest_parent_dir = File.join(File.expand_path('~'), '.browserstack')
+    dest_parent_dir = get_available_dirs
     binary_path = File.join(dest_parent_dir, "BrowserStackLocal#{".exe" if @windows}")
     if File.exists? binary_path
       binary_path
     else
-      download
+      download(dest_parent_dir)
+    end
+  end
+
+  private
+
+  def get_available_dirs
+    i = 0
+    while i < @ordered_paths.size
+      path = @ordered_paths[i]
+      if make_path(path)
+        return path
+      else
+        i += 1
+      end
+    end
+    raise BrowserStack::LocalException.new('Error trying to download BrowserStack Local binary')
+  end
+
+  def make_path(path)
+    begin
+      FileUtils.mkdir_p path if !Dir.exists?(path)
+      return true
+    rescue Exception => e
+      puts "Exception #{e.message} #{e.backtrace}"
+      return false
     end
   end
 end
