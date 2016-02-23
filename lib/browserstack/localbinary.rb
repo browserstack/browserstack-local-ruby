@@ -24,7 +24,7 @@ class LocalBinary
     end
 
     @ordered_paths = [
-      File.expand_path('~'), '.browserstack',
+      File.join(File.expand_path('~'), '.browserstack'),
       Dir.pwd,
       Dir.tmpdir
     ]

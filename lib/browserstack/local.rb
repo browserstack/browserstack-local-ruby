@@ -13,6 +13,7 @@ class Local
       else
         binary_path
       end
+    @logfile = File.join(Dir.pwd, "local.log")
   end
 
   def add_args(key, value=nil)
@@ -43,6 +44,8 @@ class Local
       @proxy_pass = "-proxyPass '#{value}'"
     elsif key == "hosts"
       @hosts = value
+    elsif key == "logfile"
+      @logfile = value
     end
   end
 
@@ -51,8 +54,9 @@ class Local
       self.add_args(key, value)
     end
 
+    system("echo '' > '#{@logfile}'")
     @process = IO.popen(command, "w+")
-    @stdout = @process # File.open("local.log", "r")
+    @stdout = File.open(@logfile, "r")
 
     while true
       begin
@@ -63,14 +67,14 @@ class Local
       end
       break if line.nil?
       if line.match(/\*\*\* Error\:/)
-        #@stdout.close
+        @stdout.close
         raise BrowserStack::LocalException.new(line)
         return
       end
       if line.strip == "Press Ctrl-C to exit"
         @pid = @process.pid
-        #@stdout.close
-        return
+        @stdout.close
+        break
       end
     end
 
@@ -81,7 +85,7 @@ class Local
   end
 
   def isRunning
-    resp = Net::HTTP.get(URI.parse("http://bs-local.com:45690/check")) rescue nil
+    resp = Net::HTTP.get(URI.parse("http://bs-local.com:45691/check")) rescue nil
     resp && !resp.match(/running/i).nil?
   end
 
@@ -96,7 +100,7 @@ class Local
   end
 
   def command
-    "#{@binary_path} #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_flag} #{@verbose_flag} #{@hosts}".strip
+    "#{@binary_path} -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_flag} #{@verbose_flag} #{@hosts}".strip
   end
 end
 
