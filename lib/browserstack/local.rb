@@ -81,7 +81,7 @@ class Local
   end
 
   def isRunning
-    resp = Net::HTTP.get(URI.parse("http://localhost:45691/check")) rescue nil
+    resp = Net::HTTP.get(URI.parse("http://bs-local.com:45690/check")) rescue nil
     resp && !resp.match(/running/i).nil?
   end
 
