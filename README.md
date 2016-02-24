@@ -34,8 +34,13 @@ gem install browserstack-local
 * `localIdentifier`: If doing simultaneous multiple local testing connections, set this uniquely for different processes
 * `hosts`: List of hosts and ports where Local must be enabled for eg. localhost,3000,1,localhost,3001,0
 * `logfile`: Path to file where Local logs be saved to
+* `binary_path`: Optional path to Local binary
+
+## Build
+
+To build gem, `rake build`.
 
 
 ## Tests
 
-To run the test suite run, `npm test`.
+To run the test suite run, `rake test`.
