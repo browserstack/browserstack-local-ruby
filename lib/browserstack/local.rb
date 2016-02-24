@@ -85,8 +85,7 @@ class Local
   end
 
   def isRunning
-    resp = Net::HTTP.get(URI.parse("http://bs-local.com:45691/check")) rescue nil
-    resp && !resp.match(/running/i).nil?
+    return true if (!@pid.nil? && Process::kill(0, @pid)) rescue false
   end
 
   def stop
