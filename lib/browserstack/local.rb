@@ -20,7 +20,7 @@ class Local
     if key == "key"
       @key = value
     elsif key == "v" && value.to_s != "false"
-      @verbose_flag = "-v"
+      @verbose_flag = "-vvv"
     elsif key == "force" && value.to_s != "false"
       @force_flag = "-force"
     elsif key == "only" && value.to_s != "false"
