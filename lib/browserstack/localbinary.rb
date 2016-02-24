@@ -77,7 +77,7 @@ class LocalBinary
 
   def make_path(path)
     begin
-      FileUtils.mkdir_p path if !Dir.exists?(path)
+      FileUtils.mkdir_p path if !File.directory?(path)
       return true
     rescue Exception => e
       puts "Exception #{e.message} #{e.backtrace}"

@@ -6,13 +6,8 @@ module BrowserStack
 class Local
   attr_reader :pid
 
-  def initialize(key = nil, binary_path = nil)
+  def initialize(key = nil)
     @key = key
-    @binary_path = if binary_path.nil?
-        BrowserStack::LocalBinary.new.binary_path
-      else
-        binary_path
-      end
     @logfile = File.join(Dir.pwd, "local.log")
   end
 
@@ -46,6 +41,8 @@ class Local
       @hosts = value
     elsif key == "logfile"
       @logfile = value
+    elsif key == "binarypath"
+      @binary_path = value
     end
   end
 
@@ -54,6 +51,12 @@ class Local
       self.add_args(key, value)
     end
 
+    @binary_path = if @binary_path.nil?
+        BrowserStack::LocalBinary.new.binary_path
+      else
+        @binary_path
+      end
+    
     system("echo '' > '#{@logfile}'")
     @process = IO.popen(command, "w+")
     @stdout = File.open(@logfile, "r")
@@ -85,7 +88,7 @@ class Local
   end
 
   def isRunning
-    return true if (!@pid.nil? && Process::kill(0, @pid)) rescue false
+    return true if (!@pid.nil? && Process.kill(0, @pid)) rescue false
   end
 
   def stop

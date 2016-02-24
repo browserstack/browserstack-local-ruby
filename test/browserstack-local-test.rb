@@ -4,24 +4,24 @@ require 'browserstack/local'
 
 class BrowserStackLocalTest < Minitest::Test
   def setup
-    @bs_local = BrowserStack::Local.new(ENV["BROWSERSTACK_ACCESS_KEY"])
+    @bs_local = BrowserStack::Local.new
   end
 
   def test_check_pid
-    @bs_local.start
+    @bs_local.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
     refute_nil @bs_local.pid, 0
   end
 
   def test_is_running
-    @bs_local.start
+    @bs_local.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
     assert_equal true, @bs_local.isRunning
   end
 
   def test_multiple_binary
-    @bs_local.start
-    bs_local_2 = BrowserStack::Local.new(ENV["BROWSERSTACK_ACCESS_KEY"])
+    @bs_local.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
+    bs_local_2 = BrowserStack::Local.new
     assert_raises BrowserStack::LocalException do
-      bs_local_2.start
+      bs_local_2.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
     end
   end
 
