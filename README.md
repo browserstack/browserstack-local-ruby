@@ -36,6 +36,7 @@ gem install browserstack-local
 * `logfile`: Path to file where Local logs be saved to
 * `binary_path`: Optional path to Local binary
 
+
 ## Build
 
 To build gem, `rake build`.
