@@ -80,7 +80,6 @@ class LocalBinary
       FileUtils.mkdir_p path if !File.directory?(path)
       return true
     rescue Exception => e
-      puts "Exception #{e.message} #{e.backtrace}"
       return false
     end
   end
