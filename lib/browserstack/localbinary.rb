@@ -41,14 +41,12 @@ class LocalBinary
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-    http.request_get(uri.path) do |res|
-      file = open(binary_path, 'w')
-      res.read_body do |chunk|
-        file.write(res.body)
-      end
-      file.close
-      FileUtils.chmod 0755, binary_path
-    end
+    res = http.get(uri.path)
+    file = open(binary_path, 'w')
+    file.write(res.body)
+    file.close
+    FileUtils.chmod 0755, binary_path
+
     binary_path
   end
 
