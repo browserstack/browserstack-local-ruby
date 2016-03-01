@@ -1,4 +1,5 @@
 require 'net/http'
+require 'net/https'
 require 'rbconfig'
 require 'openssl'
 require 'tmpdir'
@@ -39,13 +40,14 @@ class LocalBinary
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
     http.request_get(uri.path) do |res|
       file = open(binary_path, 'w')
       res.read_body do |chunk|
         file.write(res.body)
       end
       file.close
-      FileUtils.chmod "+x", binary_path
+      FileUtils.chmod 0755, binary_path
     end
     binary_path
   end
