@@ -12,10 +12,10 @@ class BrowserStackLocalTest < Minitest::Test
     refute_nil @bs_local.pid, 0
   end
 
-  # def test_is_running
-  #   @bs_local.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
-  #   assert_equal true, @bs_local.isRunning
-  # end
+  def test_is_running
+    @bs_local.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
+    assert_equal true, @bs_local.isRunning
+  end
 
   # def test_multiple_binary
   #   @bs_local.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
