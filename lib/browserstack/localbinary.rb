@@ -13,14 +13,14 @@ class LocalBinary
     @http_path = case host_os
     when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
       @windows = true
-      "https://www.dropbox.com/s/oviu8oge5elv1ca/BrowserStackLocal-win32.exe?dl=0"
+      "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-win32.exe"
     when /darwin|mac os/
-      "https://www.dropbox.com/s/q6quexatq5013xy/BrowserStackLocal-darwin-x64?dl=0"
+      "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-darwin-x64"
     when /linux/
       if 1.size == 8
-        "https://www.dropbox.com/s/jnrm7u3inwhnj5r/BrowserStackLocal-linux-x64?dl=0"
+        "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-x64"
       else
-        "https://www.dropbox.com/s/ae2zsyxceeci0wk/BrowserStackLocal-linux-ia32?dl=0"
+        "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-ia32"
       end
     end
 
