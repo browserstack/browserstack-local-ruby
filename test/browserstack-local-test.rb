@@ -17,13 +17,13 @@ class BrowserStackLocalTest < Minitest::Test
     assert_equal true, @bs_local.isRunning
   end
 
-  # def test_multiple_binary
-  #   @bs_local.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
-  #   bs_local_2 = BrowserStack::Local.new
-  #   assert_raises BrowserStack::LocalException do
-  #     bs_local_2.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
-  #   end
-  # end
+  def test_multiple_binary
+    @bs_local.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
+    bs_local_2 = BrowserStack::Local.new
+    assert_raises BrowserStack::LocalException do
+      bs_local_2.start({'key' => ENV["BROWSERSTACK_ACCESS_KEY"]})
+    end
+  end
 
   def test_enable_verbose
     @bs_local.add_args('v')
