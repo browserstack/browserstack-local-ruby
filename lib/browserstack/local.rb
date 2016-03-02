@@ -94,6 +94,7 @@ class Local
   def stop
     return if @pid.nil?
     puts "PID #{@pid}"
+    puts `ps aux| grep BrowserStackLocal`
     puts `lsof -i:45691`
     Process.kill("INT", @pid)
     sleep 3
