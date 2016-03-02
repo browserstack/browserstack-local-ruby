@@ -9,6 +9,7 @@ class Local
   def initialize(key = ENV["BROWSERSTACK_ACCESS_KEY"])
     @key = key
     @logfile = File.join(Dir.pwd, "local.log")
+    @exec = RbConfig::CONFIG['host_os'].match(/mswin|msys|mingw|cygwin|bccwin|wince|emc/) ? "call" : "exec";
   end
 
   def add_args(key, value=nil)
@@ -58,9 +59,11 @@ class Local
       end
     
     system("echo '' > '#{@logfile}'")
-    #@pid = spawn()
-    #Process.detach @pid
-    @process = IO.popen(command_args)
+    if defined? spawn
+      @process = IO.popen(command_args)
+    else
+      @process = IO.popen(command)
+    end
     @stdout = File.open(@logfile, "r")
 
     while true
@@ -103,7 +106,7 @@ class Local
   end
 
   def command
-    "#{@binary_path} -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_flag} #{@verbose_flag} #{@hosts}".strip
+    "#{@exec} #{@binary_path} -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_flag} #{@verbose_flag} #{@hosts}".strip
   end
 
   def command_args
