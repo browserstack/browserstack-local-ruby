@@ -93,10 +93,13 @@ class Local
 
   def stop
     return if @pid.nil?
+    puts "PID #{@pid}"
+    puts `lsof -i:45691`
     Process.kill("INT", @pid)
     sleep 3
     Process.kill("KILL", @pid)
     @process.close
+    puts `lsof -i:45691`
     while self.isRunning
       sleep 1
     end
