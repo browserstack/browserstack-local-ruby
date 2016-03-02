@@ -58,9 +58,9 @@ class Local
       end
     
     system("echo '' > '#{@logfile}'")
-    @pid = Process.spawn(command)
-    Process.detach @pid
-    #@process = IO.popen(command)
+    #@pid = spawn()
+    #Process.detach @pid
+    @process = IO.popen(command_args)
     @stdout = File.open(@logfile, "r")
 
     while true
@@ -77,7 +77,7 @@ class Local
         return
       end
       if line.strip == "Press Ctrl-C to exit"
-        #@pid = @process.pid
+        @pid = @process.pid
         @stdout.close
         break
       end
@@ -101,7 +101,7 @@ class Local
     Process.kill("TERM", @pid)
     # sleep 3
     # Process.kill("KILL", @pid)
-    # @process.close
+    @process.close
     puts "Closed"
     puts `ps aux| grep BrowserStackLocal`
     puts `lsof -i:45691`
@@ -112,6 +112,10 @@ class Local
 
   def command
     "#{@binary_path} -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_flag} #{@verbose_flag} #{@hosts}".strip
+  end
+
+  def command_args
+    ["#{@binary_path}", "-logFile", "#{@logfile}", "#{@key}", "#{@folder_flag}", "#{@folder_path}", "#{@force_local_flag}", "#{@local_identifier_flag}", "#{@only_flag}", "#{@only_automate_flag}", "#{@proxy_host}", "#{@proxy_port}", "#{@proxy_user}", "#{@proxy_pass}", "#{@force_flag}", "#{@verbose_flag}", "#{@hosts}", :err => [:child, :out]]
   end
 end
 
