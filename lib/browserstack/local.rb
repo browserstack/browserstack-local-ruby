@@ -100,6 +100,8 @@ class Local
     sleep 3
     Process.kill("KILL", @pid)
     @process.close
+    puts "Closed"
+    puts `ps aux| grep BrowserStackLocal`
     puts `lsof -i:45691`
     while self.isRunning
       sleep 1
