@@ -93,10 +93,11 @@ class Local
 
   def stop
     return if @pid.nil?
-    Process.kill("TERM", @pid)
+    Process.kill("INT", @pid)
+    sleep 3
+    Process.kill("KILL", @pid)
     @process.close
-    while true
-      break if !self.isRunning
+    while self.isRunning
       sleep 1
     end
   end
