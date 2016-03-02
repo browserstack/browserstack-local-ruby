@@ -58,10 +58,8 @@ class Local
       end
     
     system("echo '' > '#{@logfile}'")
-    if defined? spawn
-      @pid = spawn(command)
-      Process.detach @pid
-    end
+    @pid = Process.spawn(command)
+    Process.detach @pid
     #@process = IO.popen(command)
     @stdout = File.open(@logfile, "r")
 
