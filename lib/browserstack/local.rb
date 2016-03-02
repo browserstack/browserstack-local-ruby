@@ -58,7 +58,11 @@ class Local
       end
     
     system("echo '' > '#{@logfile}'")
-    @process = IO.popen(command)
+    if defined? spawn
+      @pid = spawn(command)
+      Process.detach @pid
+    end
+    #@process = IO.popen(command)
     @stdout = File.open(@logfile, "r")
 
     while true
@@ -75,7 +79,7 @@ class Local
         return
       end
       if line.strip == "Press Ctrl-C to exit"
-        @pid = @process.pid
+        #@pid = @process.pid
         @stdout.close
         break
       end
@@ -96,10 +100,10 @@ class Local
     puts "PID #{@pid}"
     puts `ps aux| grep BrowserStackLocal`
     puts `lsof -i:45691`
-    Process.kill("INT", @pid)
-    sleep 3
-    Process.kill("KILL", @pid)
-    @process.close
+    Process.kill("TERM", @pid)
+    # sleep 3
+    # Process.kill("KILL", @pid)
+    # @process.close
     puts "Closed"
     puts `ps aux| grep BrowserStackLocal`
     puts `lsof -i:45691`
