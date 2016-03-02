@@ -6,7 +6,7 @@ module BrowserStack
 class Local
   attr_reader :pid
 
-  def initialize(key = nil)
+  def initialize(key = ENV["BROWSERSTACK_ACCESS_KEY"])
     @key = key
     @logfile = File.join(Dir.pwd, "local.log")
   end
@@ -58,7 +58,9 @@ class Local
       end
     
     system("echo '' > '#{@logfile}'")
-    @process = IO.popen(command, "w+")
+    #@pid = spawn()
+    #Process.detach @pid
+    @process = IO.popen(command_args)
     @stdout = File.open(@logfile, "r")
 
     while true
@@ -95,14 +97,20 @@ class Local
     return if @pid.nil?
     Process.kill("TERM", @pid)
     @process.close
-    while true
-      break if !self.isRunning
+    while self.isRunning
       sleep 1
     end
   end
 
   def command
     "#{@binary_path} -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_flag} #{@verbose_flag} #{@hosts}".strip
+  end
+
+  def command_args
+    args = ["#{@binary_path}", "-logFile", "#{@logfile}", "#{@key}", "#{@folder_flag}", "#{@folder_path}", "#{@force_local_flag}", "#{@local_identifier_flag}", "#{@only_flag}", "#{@only_automate_flag}", "#{@proxy_host}", "#{@proxy_port}", "#{@proxy_user}", "#{@proxy_pass}", "#{@force_flag}", "#{@verbose_flag}", "#{@hosts}"]
+    args = args.select {|a| a.to_s != "" }
+    args.push(:err => [:child, :out])
+    args
   end
 end
 

@@ -1,5 +1,7 @@
 # browserstack-local-ruby
 
+[![Build Status](https://travis-ci.org/browserstack/browserstack-local-ruby.svg?branch=master)](https://travis-ci.org/browserstack/browserstack-local-ruby)
+
 ## Setup
 
 ```
