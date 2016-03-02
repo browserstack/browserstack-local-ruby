@@ -6,7 +6,7 @@ module BrowserStack
 class Local
   attr_reader :pid
 
-  def initialize(key = nil)
+  def initialize(key = ENV["BROWSERSTACK_ACCESS_KEY"])
     @key = key
     @logfile = File.join(Dir.pwd, "local.log")
   end
