@@ -95,16 +95,8 @@ class Local
 
   def stop
     return if @pid.nil?
-    puts "PID #{@pid}"
-    puts `ps aux| grep BrowserStackLocal`
-    puts `lsof -i:45691`
     Process.kill("TERM", @pid)
-    # sleep 3
-    # Process.kill("KILL", @pid)
     @process.close
-    puts "Closed"
-    puts `ps aux| grep BrowserStackLocal`
-    puts `lsof -i:45691`
     while self.isRunning
       sleep 1
     end
@@ -115,7 +107,10 @@ class Local
   end
 
   def command_args
-    ["#{@binary_path}", "-logFile", "#{@logfile}", "#{@key}", "#{@folder_flag}", "#{@folder_path}", "#{@force_local_flag}", "#{@local_identifier_flag}", "#{@only_flag}", "#{@only_automate_flag}", "#{@proxy_host}", "#{@proxy_port}", "#{@proxy_user}", "#{@proxy_pass}", "#{@force_flag}", "#{@verbose_flag}", "#{@hosts}", :err => [:child, :out]]
+    args = ["#{@binary_path}", "-logFile", "#{@logfile}", "#{@key}", "#{@folder_flag}", "#{@folder_path}", "#{@force_local_flag}", "#{@local_identifier_flag}", "#{@only_flag}", "#{@only_automate_flag}", "#{@proxy_host}", "#{@proxy_port}", "#{@proxy_user}", "#{@proxy_pass}", "#{@force_flag}", "#{@verbose_flag}", "#{@hosts}"]
+    args = args.select {|a| a.to_s != "" }
+    args.push(:err => [:child, :out])
+    args
   end
 end
 
