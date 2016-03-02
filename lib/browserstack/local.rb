@@ -58,7 +58,7 @@ class Local
       end
     
     system("echo '' > '#{@logfile}'")
-    @process = IO.popen(command, "w+")
+    @process = IO.popen(command)
     @stdout = File.open(@logfile, "r")
 
     while true
