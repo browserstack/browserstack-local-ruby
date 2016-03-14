@@ -13,14 +13,14 @@ class LocalBinary
     @http_path = case host_os
     when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
       @windows = true
-      "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-win32.exe"
+      "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-win32.exe"
     when /darwin|mac os/
-      "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-darwin-x64"
+      "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64"
     when /linux/
       if 1.size == 8
-        "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-x64"
+        "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-x64"
       else
-        "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-ia32"
+        "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32"
       end
     end
 
@@ -79,7 +79,7 @@ class LocalBinary
     begin
       FileUtils.mkdir_p path if !File.directory?(path)
       return true
-    rescue Exception => e
+    rescue Exception
       return false
     end
   end
