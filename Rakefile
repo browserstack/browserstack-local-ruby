@@ -7,8 +7,9 @@ Rake::TestTask.new do |t|
 end
 
 task :build do
-  system "mkdir -p dist"
+  system "mkdir dist"
   system "gem build browserstack-local.gemspec"
-  system "mv browserstack-local-*.gem dist"
+  move_command = RbConfig::CONFIG['host_os'].match(/mswin|msys|mingw|cygwin|bccwin|wince|emc|win32/) ? "move" : "mv";
+  system "#{move_command} browserstack-local-*.gem dist"
   system "gem install ./dist/browserstack-local-*.gem"
 end
