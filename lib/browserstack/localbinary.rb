@@ -79,7 +79,7 @@ class LocalBinary
     begin
       FileUtils.mkdir_p path if !File.directory?(path)
       return true
-    rescue Exception => e
+    rescue Exception
       return false
     end
   end
