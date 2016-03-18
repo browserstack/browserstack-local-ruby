@@ -13,7 +13,7 @@ class LocalBinary
     @http_path = case host_os
     when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
       @windows = true
-      "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-win32.exe"
+      "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe"
     when /darwin|mac os/
       "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64"
     when /linux/

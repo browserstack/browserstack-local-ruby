@@ -9,7 +9,8 @@ class Local
   def initialize(key = ENV["BROWSERSTACK_ACCESS_KEY"])
     @key = key
     @logfile = File.join(Dir.pwd, "local.log")
-    @exec = RbConfig::CONFIG['host_os'].match(/mswin|msys|mingw|cygwin|bccwin|wince|emc/) ? "call" : "exec";
+    @is_windows = RbConfig::CONFIG['host_os'].match(/mswin|msys|mingw|cygwin|bccwin|wince|emc|win32/)
+    @exec = @is_windows ? "call" : "exec";
   end
 
   def add_args(key, value=nil)
@@ -58,7 +59,12 @@ class Local
         @binary_path
       end
     
-    system("echo '' > '#{@logfile}'")
+    if @is_windows
+      system("echo > #{@logfile}")
+    else
+      system("echo '' > '#{@logfile}'")
+    end
+
     if defined? spawn
       @process = IO.popen(command_args)
     else
@@ -98,8 +104,9 @@ class Local
 
   def stop
     return if @pid.nil?
-    Process.kill("TERM", @pid)
+    Process.kill("TERM", @pid) rescue Process.kill(9, @pid)
     @process.close
+    @pid = nil if @is_windows
     while self.isRunning
       sleep 1
     end
