@@ -72,6 +72,11 @@ class BrowserStackLocalTest < Minitest::Test
     assert_match /\-proxyHost \'localhost\' \-proxyPort 8080 \-proxyUser \'user\' \-proxyPass \'pass\'/, @bs_local.command
   end
 
+  def test_force_proxy
+    @bs_local.add_args "forceproxy"
+    assert_match /\-forceproxy/, @bs_local.command
+  end
+
   def test_hosts
     @bs_local.add_args "hosts", "localhost,8080,0"
     assert_match /localhost\,8080\,0/, @bs_local.command
