@@ -45,6 +45,8 @@ class Local
       @logfile = value
     elsif key == "binarypath"
       @binary_path = value
+    elsif key == "forceproxy" && value.to_s != "false"
+      @force_proxy_flag = "-forceproxy"
     end
   end
 
@@ -113,11 +115,11 @@ class Local
   end
 
   def command
-    "#{@exec} #{@binary_path} -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_flag} #{@verbose_flag} #{@hosts}".strip
+    "#{@exec} #{@binary_path} -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_proxy_flag} #{@force_flag} #{@verbose_flag} #{@hosts}".strip
   end
 
   def command_args
-    args = ["#{@binary_path}", "-logFile", "#{@logfile}", "#{@key}", "#{@folder_flag}", "#{@folder_path}", "#{@force_local_flag}", "#{@local_identifier_flag}", "#{@only_flag}", "#{@only_automate_flag}", "#{@proxy_host}", "#{@proxy_port}", "#{@proxy_user}", "#{@proxy_pass}", "#{@force_flag}", "#{@verbose_flag}", "#{@hosts}"]
+    args = ["#{@binary_path}", "-logFile", "#{@logfile}", "#{@key}", "#{@folder_flag}", "#{@folder_path}", "#{@force_local_flag}", "#{@local_identifier_flag}", "#{@only_flag}", "#{@only_automate_flag}", "#{@proxy_host}", "#{@proxy_port}", "#{@proxy_user}", "#{@proxy_pass}", "{@force_proxy_flag}","#{@force_flag}", "#{@verbose_flag}", "#{@hosts}"]
     args = args.select {|a| a.to_s != "" }
     args.push(:err => [:child, :out])
     args
