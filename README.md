@@ -33,7 +33,7 @@ bs_local.stop
 
 ## Additional Arguments
 
-Apart from the key all other arguments are optional. To specify these arguments add them to the inout hash for the BrowserStack::Local constructor.
+Apart from the key all other arguments are optional. To specify these arguments add them to the input hash for the BrowserStack::Local constructor.
 
 #### Verbose Logging
 To enable verbose logging - 
