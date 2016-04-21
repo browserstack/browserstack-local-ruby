@@ -18,9 +18,9 @@ require 'browserstack-local'
 bs_local = new BrowserStack::Local
 bs_local.add_args "force"
 bs_local.add_args "onlyAutomate"
-bs_local.start(bs_local_options)
+bs_local.start
 if (bs_local.isRunning)
-  bs_local.stop()
+  bs_local.stop
 end
 
 ```
