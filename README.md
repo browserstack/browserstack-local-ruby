@@ -8,7 +8,7 @@
 gem install browserstack-local
 ```
 
-## Examples:
+## Example:
 
 ```
 require 'browserstack-local'
@@ -16,15 +16,15 @@ require 'browserstack-local'
 #creates an instance of Local
 bs_local = BrowserStack::Local.new
 
-#options for Local instance
-bs_local_options = {}
+#arguments for Local instance
+bs_local_args = {}
 
 #replace BROWSERSTACK_ACCESS_KEY with your key. 
 #you can also use environment variables.
-bs_local_options['key'] = "BROWSERSTACK_ACCESS_KEY"
+bs_local_args['key'] = "BROWSERSTACK_ACCESS_KEY"
 
 #stops the Local instance with the required options
-bs_local.start(bs_local_options)
+bs_local.start(bs_local_args)
 
 #checks if Local instance is running
 if (bs_local.isRunning)
@@ -34,60 +34,49 @@ end
 
 ```
 
-## Additional Options
+## Additional Arguments
 
-To specify other options, add it to the options hash while creating a new instance
+Apart from the key all other arguments are optional. To specify these arguments add them to the inout hash for the BrowserStack::Local constructor.
 
-### Verbose Logging 
-
+#### Verbose Logging
 To enable verbose logging - 
-
 ```
-bs_local_options['v'] = "true"
-```
-
-### Folder Testing
-```
-bs_local_options['v'] = "true"
+bs_local_args['v'] = "true"
 ```
 
-
-### Force 
-* `force`: Kill other running Browserstack Local
-
+#### Folder Testing
+To enable folder testing - 
 ```
-bs_local_options['v'] = "true"
+bs_local_args['v'] = "true"
 ```
 
+#### Hosts
+To specify hosts and ports for Local testing for eg. localhost,3000 -
 
-### Proxy 
-* `proxyHost`: Hostname/IP of proxy, remaining proxy options are ignored if this option is absent
-* `proxyPort`: Port for the proxy, defaults to 3128 when -proxyHost is used
-* `proxyUser`: Username for connecting to proxy (Basic Auth Only)
-* `proxyPass`: Password for USERNAME, will be ignored if USERNAME is empty or not specified
+
+#### Force Start 
+To kill other running Browserstack Local instances - 
+
+#### Only Automate
+To only enable local testing for automate - 
+
+### Proxy
+To use a proxy for local testing -  
 
 
 ### Local Identifier
+If doing simultaneous multiple local testing connections, set this uniquely for different processes - 
 
 ### Hosts
 
+To restrict local testing access to specified local servers and/or folder
+
+
 ### Binary Path
+Path to specify local Binary path 
 
 ### Logfile 
-
-* `key`: BrowserStack Access Key
-* `v`: Provides verbose logging
-* `f`: If you want to test local folder rather internal server, provide path to folder as value of this option
-* `force`: Kill other running Browserstack Local
-* `only`: Restricts Local Testing access to specified local servers and/or folders
-* `forcelocal`: Route all traffic via local machine
-* `onlyAutomate`: Disable Live Testing and Screenshots, just test Automate
-
-* `localIdentifier`: If doing simultaneous multiple local testing connections, set this uniquely for different processes
-* `hosts`: List of hosts and ports where Local must be enabled for eg. localhost,3000,1,localhost,3001,0
-* `logfile`: Path to file where Local logs be saved to
-* `binarypath`: Optional path to Local binary
-
+To specify the path to file where the logs will be saved - 
 
 ## Contribute
 
