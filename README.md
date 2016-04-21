@@ -53,7 +53,7 @@ To specify hosts and ports for Local testing -
 bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "hosts" => "localhost,8080,0"}
 ```
 
-To restrict local testing access to specified local servers and/or folder
+To restrict local testing access to specified local servers and/or folder -
 ```
 bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "only" => "true"}
 ```
@@ -97,7 +97,7 @@ bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "localIdentifier" => "ran
 ```
 
 ### Binary Path
-Path to specify local Binary path 
+Path to specify local Binary path -
 ```
 bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "binarypath" => "/browserstack/BrowserStackLocal"}
 ```
