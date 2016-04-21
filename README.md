@@ -23,7 +23,8 @@ bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" }
 #starts the Local instance with the required arguments
 bs_local.start(bs_local_args)
 
-puts bs_local.isRunning
+#check if BrowserStack local instance is running
+bs_local.isRunning
 
 #stop the Local instance
 bs_local.stop
