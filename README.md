@@ -45,38 +45,76 @@ bs_local_args['v'] = "true"
 ```
 
 #### Folder Testing
-To enable folder testing - 
+To test local folder rather internal server, provide path to folder as value of this option - 
 ```
-bs_local_args['v'] = "true"
+bs_local_args['f'] = "/my/awesome/folder"
 ```
 
 #### Hosts
-To specify hosts and ports for Local testing for eg. localhost,3000 -
+To specify hosts and ports for Local testing -
+```
+bs_local_args['hosts'] = "localhost,8080,0"
+```
+To restrict local testing access to specified local servers and/or folder
+```
+bs_local_args['only'] = "true"
+```
 
 
 #### Force Start 
 To kill other running Browserstack Local instances - 
+```
+bs_local_args['force'] = "true"
+```
 
 #### Only Automate
-To only enable local testing for automate - 
+To disable local testing for Live and Screenshots, and enable only Automate - 
+```
+bs_local_args['onlyAutomate'] = "true"
+```
+
+#### Force Local
+To route all traffic via local(your) machine - 
+```
+bs_local_args['forcelocal'] = "true"
+```
+
 
 ### Proxy
 To use a proxy for local testing -  
 
+* proxyHost: Hostname/IP of proxy, remaining proxy options are ignored if this option is absent
+* proxyPort: Port for the proxy, defaults to 3128 when -proxyHost is used
+* proxyUser: Username for connecting to proxy (Basic Auth Only)
+* proxyPass: Password for USERNAME, will be ignored if USERNAME is empty or not specified
+
+```
+bs_local_args['proxyHost'] = "127.0.0.1"
+bs_local_args['proxyPort'] = "true"
+bs_local_args['proxyUser'] = "user"
+bs_local_args['proxyPass'] = "password"
+
+```
 
 ### Local Identifier
 If doing simultaneous multiple local testing connections, set this uniquely for different processes - 
+```
+bs_local_args['localIdentifier'] = "randomstring"
+```
 
-### Hosts
-
-To restrict local testing access to specified local servers and/or folder
 
 
 ### Binary Path
 Path to specify local Binary path 
+```
+bs_local_args['binarypath'] = "/awesome/browserstack/BrowserStackLocal"
+```
 
 ### Logfile 
 To specify the path to file where the logs will be saved - 
+```
+bs_local_args['logfile'] = "/awesome/browserstack/logs.txt"
+```
 
 ## Contribute
 
