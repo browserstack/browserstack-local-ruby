@@ -84,7 +84,7 @@ If doing simultaneous multiple local testing connections, set this uniquely for 
 bs_local_args = { "-key" => "<browserstack-accesskey>" , "-localIdentifier" => "randomstring"}
 ```
 
-### Additional Arguments for BrowserStack Local wrappers
+## Additional Arguments for BrowserStack Local wrappers
 
 Additional arguments that are enabled only for BrowserStack wrappers and not in BrowserStack Local binary.
 
