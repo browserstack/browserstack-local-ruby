@@ -21,11 +21,9 @@ class BrowserStackLocalTest < Minitest::Test
   def test_multiple_binary
     @bs_local.start
     bs_local_2 = BrowserStack::Local.new
-    second_log_file = File.join(Dir.pwd, 'local2.log')
     assert_raises BrowserStack::LocalException do
-      bs_local_2.start({'logfile' => second_log_file})
+      bs_local_2.start
     end
-    File.delete(second_log_file)
   end
 
   def test_enable_verbose
