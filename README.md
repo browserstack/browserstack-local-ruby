@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/browserstack/browserstack-local-ruby.svg?branch=master)](https://travis-ci.org/browserstack/browserstack-local-ruby)
 
+A simple Ruby wrapper for BrowserStack Local Binary.
+
 ## Installation:
 
 ```
@@ -16,9 +18,9 @@ require 'browserstack-local'
 #creates an instance of Local
 bs_local = BrowserStack::Local.new
 
-#replace BROWSERSTACK_ACCESS_KEY with your key. 
-#you can also use environment variables.
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" }
+#replace <browserstack-accesskey> with your key. 
+# you may not add it if you have 'BROWSERSTACK_ACCESS_KEY' in your environment variables.
+bs_local_args = { "key" => "<browserstack-accesskey>" }
 
 #starts the Local instance with the required arguments
 bs_local.start(bs_local_args)
@@ -33,7 +35,7 @@ bs_local.stop
 
 ## Additional Arguments
 
-Apart from the key all other arguments are optional. To specify these arguments add them to the input hash for the BrowserStack::Local constructor.
+Apart from the key all other arguments are optional. For the full list of arguments, refer [BrowserStack Local modifiers](https://www.browserstack.com/local-testing#modifiers). To specify these arguments add them to the input hash for the BrowserStack::Local without the hyphen. For examples, refer below -  
 
 #### Verbose Logging
 To enable verbose logging - 
@@ -46,18 +48,6 @@ To test local folder rather internal server, provide path to folder as value of 
 ```
 bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "f" => "/my/awesome/folder"}
 ```
-
-#### Hosts
-To specify hosts and ports for Local testing -
-```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "hosts" => "localhost,8080,0"}
-```
-
-To restrict local testing access to specified local servers and/or folder -
-```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "only" => "true"}
-```
-
 
 #### Force Start 
 To kill other running Browserstack Local instances - 
@@ -76,7 +66,6 @@ To route all traffic via local(your) machine -
 ```
 bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "forcelocal" => "true"}
 ```
-
 
 ### Proxy
 To use a proxy for local testing -  
