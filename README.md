@@ -18,8 +18,7 @@ require 'browserstack-local'
 #creates an instance of Local
 bs_local = BrowserStack::Local.new
 
-#replace <browserstack-accesskey> with your key. 
-# you may not add it if you have '<browserstack-accesskey>' in your environment variables.
+#replace <browserstack-accesskey> with your key. You can also set it in your environment variables - "BROWSERSTACK_ACCESS_KEY".
 bs_local_args = { "-key" => "<browserstack-accesskey>" }
 
 #starts the Local instance with the required arguments
@@ -33,9 +32,9 @@ bs_local.stop
 
 ```
 
-## Additional Arguments
+## Arguments
 
-Apart from the key all other arguments are optional. For the full list of arguments, refer [BrowserStack Local modifiers](https://www.browserstack.com/local-testing#modifiers). For examples, refer below -  
+Apart from the key all other BrowserStack Local modifiers are optional. For the full list of modifiers, refer [BrowserStack Local modifiers](https://www.browserstack.com/local-testing#modifiers). For examples, refer below -  
 
 #### Verbose Logging
 To enable verbose logging - 
@@ -67,7 +66,7 @@ To route all traffic via local(your) machine -
 bs_local_args = { "-key" => "<browserstack-accesskey>" , "-forcelocal" => "true"}
 ```
 
-### Proxy
+#### Proxy
 To use a proxy for local testing -  
 
 * proxyHost: Hostname/IP of proxy, remaining proxy options are ignored if this option is absent
@@ -79,19 +78,26 @@ To use a proxy for local testing -
 bs_local_args = { "-key" => "<browserstack-accesskey>", "-proxyHost" => "127.0.0.1", "-proxyPort" => "8000", "-proxyUser" => "user", "-proxyPass" => "password"}
 ```
 
-### Local Identifier
+#### Local Identifier
 If doing simultaneous multiple local testing connections, set this uniquely for different processes - 
 ```
 bs_local_args = { "-key" => "<browserstack-accesskey>" , "-localIdentifier" => "randomstring"}
 ```
 
-### Binary Path
+### Additional Arguments for BrowserStack Local wrappers
+
+Additional arguments that are enabled only for BrowserStack wrappers and not in BrowserStack Local binary.
+
+#### Binary Path
+
+By default, BrowserStack local wrappers try downlaoding and executing the latest version of BrowserStack binary in ~/.browserstack or the present working directory or the tmp folder by order. But you can override these by passing the -binarypath argument.
 Path to specify local Binary path -
 ```
 bs_local_args = { "-key" => "<browserstack-accesskey>" , "-binarypath" => "/browserstack/BrowserStackLocal"}
 ```
 
-### Logfile 
+#### Logfile
+To save the logs to the file while running with the '-v' argument, you can specify the path of the file. By default the logs are saved in the local.log file in the present woring directory. 
 To specify the path to file where the logs will be saved - 
 ```
 bs_local_args = { "-key" => "<browserstack-accesskey>" , "-logfile" => "/browserstack/logs.txt"}
