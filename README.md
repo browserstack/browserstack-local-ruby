@@ -19,7 +19,7 @@ require 'browserstack-local'
 bs_local = BrowserStack::Local.new
 
 #replace <browserstack-accesskey> with your key. 
-# you may not add it if you have 'BROWSERSTACK_ACCESS_KEY' in your environment variables.
+# you may not add it if you have '<browserstack-accesskey>' in your environment variables.
 bs_local_args = { "key" => "<browserstack-accesskey>" }
 
 #starts the Local instance with the required arguments
@@ -35,36 +35,36 @@ bs_local.stop
 
 ## Additional Arguments
 
-Apart from the key all other arguments are optional. For the full list of arguments, refer [BrowserStack Local modifiers](https://www.browserstack.com/local-testing#modifiers). To specify these arguments add them to the input hash for the BrowserStack::Local without the hyphen. For examples, refer below -  
+Apart from the key all other arguments are optional. For the full list of arguments, refer [BrowserStack Local modifiers](https://www.browserstack.com/local-testing#modifiers). For examples, refer below -  
 
 #### Verbose Logging
 To enable verbose logging - 
 ```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "v" => "true"}
+bs_local_args = { "key" => "<browserstack-accesskey>" , "-v" => "true"}
 ```
 
 #### Folder Testing
 To test local folder rather internal server, provide path to folder as value of this option - 
 ```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "f" => "/my/awesome/folder"}
+bs_local_args = { "key" => "<browserstack-accesskey>" , "-f" => "/my/awesome/folder"}
 ```
 
 #### Force Start 
 To kill other running Browserstack Local instances - 
 ```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "force" => "true"}
+bs_local_args = { "key" => "<browserstack-accesskey>" , "-force" => "true"}
 ```
 
 #### Only Automate
 To disable local testing for Live and Screenshots, and enable only Automate - 
 ```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "onlyAutomate" => "true"}
+bs_local_args = { "key" => "<browserstack-accesskey>" , "-onlyAutomate" => "true"}
 ```
 
 #### Force Local
 To route all traffic via local(your) machine - 
 ```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "forcelocal" => "true"}
+bs_local_args = { "key" => "<browserstack-accesskey>" , "-forcelocal" => "true"}
 ```
 
 ### Proxy
@@ -76,25 +76,25 @@ To use a proxy for local testing -
 * proxyPass: Password for USERNAME, will be ignored if USERNAME is empty or not specified
 
 ```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY", "proxyHost" => "127.0.0.1", "proxyPort" => "8000", "proxyUser" => "user", "proxyPass" => "password"}
+bs_local_args = { "key" => "<browserstack-accesskey>", "-proxyHost" => "127.0.0.1", "-proxyPort" => "8000", "-proxyUser" => "user", "-proxyPass" => "password"}
 ```
 
 ### Local Identifier
 If doing simultaneous multiple local testing connections, set this uniquely for different processes - 
 ```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "localIdentifier" => "randomstring"}
+bs_local_args = { "key" => "<browserstack-accesskey>" , "-localIdentifier" => "randomstring"}
 ```
 
 ### Binary Path
 Path to specify local Binary path -
 ```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "binarypath" => "/browserstack/BrowserStackLocal"}
+bs_local_args = { "key" => "<browserstack-accesskey>" , "-binarypath" => "/browserstack/BrowserStackLocal"}
 ```
 
 ### Logfile 
 To specify the path to file where the logs will be saved - 
 ```
-bs_local_args = { "key" => "BROWSERSTACK_ACCESS_KEY" , "logfile" => "/browserstack/logs.txt"}
+bs_local_args = { "key" => "<browserstack-accesskey>" , "-logfile" => "/browserstack/logs.txt"}
 ```
 
 ## Contribute
