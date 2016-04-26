@@ -18,7 +18,7 @@ require 'browserstack-local'
 #creates an instance of Local
 bs_local = BrowserStack::Local.new
 
-#replace <browserstack-accesskey> with your key. You can also set it in your environment variables - "BROWSERSTACK_ACCESS_KEY".
+#replace <browserstack-accesskey> with your key. You can also set an environment variable - "BROWSERSTACK_ACCESS_KEY".
 bs_local_args = { "-key" => "<browserstack-accesskey>" }
 
 #starts the Local instance with the required arguments
