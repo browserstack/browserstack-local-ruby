@@ -64,6 +64,20 @@ class BrowserStackLocalTest < Minitest::Test
     assert_match /\-localIdentifier \'randomString\'/, @bs_local.command
   end
 
+  def test_custom_boolean_argument
+    @bs_local.add_args "boolArg1"
+    @bs_local.add_args "boolArg2"
+    assert_match /\-boolArg1/, @bs_local.command
+    assert_match /\-boolArg2/, @bs_local.command
+  end
+
+  def test_custom_keyval
+    @bs_local.add_args "customKey1", "custom value1"
+    @bs_local.add_args "customKey2", "custom value2"
+    assert_match /\-customKey1 \'custom value1\'/, @bs_local.command
+    assert_match /\-customKey2 \'custom value2\'/, @bs_local.command
+  end
+
   def test_set_proxy
     @bs_local.add_args "proxyHost", "localhost"
     @bs_local.add_args "proxyPort", 8080
