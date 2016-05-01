@@ -1,6 +1,6 @@
 # browserstack-local-ruby
 
-[![Build Status](https://travis-ci.org/browserstack/browserstack-local-ruby.svg?branch=master)](https://travis-ci.org/browserstack/browserstack-local-ruby)
+[![Build Status](https://travis-ci.org/browserstack/browserstack-local-ruby.svg?branch=master)](https://travis-ci.org/browserstack/browserstack-local-ruby) [![Gem Version](https://badge.fury.io/rb/browserstack-local.svg)](https://badge.fury.io/rb/browserstack-local)
 
 Ruby bindings for BrowserStack Local.
 
