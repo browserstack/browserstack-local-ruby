@@ -13,7 +13,7 @@ gem install browserstack-local
 ## Example
 
 ```
-require 'browserstack-local'
+require 'browserstack/local'
 
 #creates an instance of Local
 bs_local = BrowserStack::Local.new
