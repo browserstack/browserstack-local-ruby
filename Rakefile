@@ -12,4 +12,5 @@ task :build do
   move_command = RbConfig::CONFIG['host_os'].match(/mswin|msys|mingw|cygwin|bccwin|wince|emc|win32/) ? "move" : "mv";
   system "#{move_command} browserstack-local-*.gem dist"
   system "gem install ./dist/browserstack-local-*.gem"
+  system "rm -rf dist"
 end

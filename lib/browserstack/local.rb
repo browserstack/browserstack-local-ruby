@@ -1,5 +1,6 @@
 require 'browserstack/localbinary'
 require 'browserstack/localexception'
+require 'json'
 
 module BrowserStack
 
@@ -75,35 +76,28 @@ class Local
     end
 
     if defined? spawn
-      @process = IO.popen(command_args)
+      @process = IO.popen(start_command_args)
     else
-      @process = IO.popen(command)
+      @process = IO.popen(start_command)
     end
-    @stdout = File.open(@logfile, "r")
 
     while true
       begin
-        line = @stdout.readline
+        line = @process.readline
       rescue EOFError => e
         sleep 1
         next
       end
-      break if line.nil?
-      if line.match(/\*\*\* Error\:/)
-        @stdout.close
-        raise BrowserStack::LocalException.new(line)
+
+      data = JSON.parse(line) rescue {"message" => "Unable to parse daemon mode JSON output"}
+      if data['state'].to_s != "connected"
+        @process.close
+        raise BrowserStack::LocalException.new(data["message"])
         return
-      end
-      if line.strip == "Press Ctrl-C to exit"
-        @pid = @process.pid
-        @stdout.close
+      else
+        @pid = data["pid"]
         break
       end
-    end
-
-    while true
-      break if self.isRunning
-      sleep 1
     end
   end
 
@@ -113,20 +107,37 @@ class Local
 
   def stop
     return if @pid.nil?
-    Process.kill("TERM", @pid) rescue Process.kill(9, @pid)
     @process.close
-    @pid = nil if @is_windows
-    while self.isRunning
-      sleep 1
+    if defined? spawn
+      @process = IO.popen(stop_command_args)
+    else
+      @process = IO.popen(stop_command)
     end
+    @process.close
+    @pid = nil
   end
 
   def command
-    "#{@exec} #{@binary_path} -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_proxy_flag} #{@force_flag} #{@verbose_flag} #{@hosts} #{@user_arguments.join(" ")}".strip
+    start_command
   end
 
-  def command_args
-    args = ["#{@binary_path}", "-logFile", "#{@logfile}", "#{@key}", "#{@folder_flag}", "#{@folder_path}", "#{@force_local_flag}", "#{@local_identifier_flag}", "#{@only_flag}", "#{@only_automate_flag}", "#{@proxy_host}", "#{@proxy_port}", "#{@proxy_user}", "#{@proxy_pass}", "#{@force_proxy_flag}","#{@force_flag}", "#{@verbose_flag}", "#{@hosts}", "#{@user_arguments.join(" ")}"]
+  def start_command
+    "#{@binary_path} -d start -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_proxy_flag} #{@force_flag} #{@verbose_flag} #{@hosts} #{@user_arguments.join(" ")} 2>&1".strip
+  end
+
+  def start_command_args
+    args = ["#{@binary_path}", "-d", "start", "-logFile", "#{@logfile}", "#{@key}", "#{@folder_flag}", "#{@folder_path}", "#{@force_local_flag}", "#{@local_identifier_flag}", "#{@only_flag}", "#{@only_automate_flag}", "#{@proxy_host}", "#{@proxy_port}", "#{@proxy_user}", "#{@proxy_pass}", "#{@force_proxy_flag}","#{@force_flag}", "#{@verbose_flag}", "#{@hosts}", "#{@user_arguments.join(" ")}"]
+    args = args.select {|a| a.to_s != "" }
+    args.push(:err => [:child, :out])
+    args
+  end
+
+  def stop_command
+    "#{@binary_path} -d stop #{@local_identifier_flag}".strip
+  end
+
+  def stop_command_args
+    args = ["#{@binary_path}", "-d", "stop", "#{@local_identifier_flag}"]
     args = args.select {|a| a.to_s != "" }
     args.push(:err => [:child, :out])
     args
