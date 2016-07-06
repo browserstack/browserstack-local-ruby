@@ -36,7 +36,7 @@ class BrowserStackLocalTest < Minitest::Test
   def test_set_folder
     @bs_local.add_args 'f', "/"
     assert_match /\-f/, @bs_local.command
-    assert_match /\'\/\'/, @bs_local.command
+    assert_match /\//, @bs_local.command
   end
 
   def test_enable_force
@@ -61,7 +61,7 @@ class BrowserStackLocalTest < Minitest::Test
 
   def test_set_local_identifier
     @bs_local.add_args "localIdentifier", "randomString"
-    assert_match /\-localIdentifier \'randomString\'/, @bs_local.command
+    assert_match /\-localIdentifier randomString/, @bs_local.command
   end
 
   def test_custom_boolean_argument
@@ -72,8 +72,8 @@ class BrowserStackLocalTest < Minitest::Test
   end
 
   def test_custom_keyval
-    @bs_local.add_args "customKey1", "custom value1"
-    @bs_local.add_args "customKey2", "custom value2"
+    @bs_local.add_args "customKey1", "'custom value1'"
+    @bs_local.add_args "customKey2", "'custom value2'"
     assert_match /\-customKey1 \'custom value1\'/, @bs_local.command
     assert_match /\-customKey2 \'custom value2\'/, @bs_local.command
   end
@@ -83,7 +83,7 @@ class BrowserStackLocalTest < Minitest::Test
     @bs_local.add_args "proxyPort", 8080
     @bs_local.add_args "proxyUser", "user"
     @bs_local.add_args "proxyPass", "pass"
-    assert_match /\-proxyHost \'localhost\' \-proxyPort 8080 \-proxyUser \'user\' \-proxyPass \'pass\'/, @bs_local.command
+    assert_match /\-proxyHost localhost \-proxyPort 8080 \-proxyUser user \-proxyPass pass/, @bs_local.command
   end
 
   def test_force_proxy
