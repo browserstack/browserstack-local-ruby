@@ -29,18 +29,18 @@ class Local
     elsif key == "forcelocal" && value.to_s != "false"
       @force_local_flag = "-forcelocal"
     elsif key == "localIdentifier"
-      @local_identifier_flag = "-localIdentifier '#{value}'"
+      @local_identifier_flag = value
     elsif key == "f"
       @folder_flag = "-f"
-      @folder_path = "'#{value}'"
+      @folder_path = value
     elsif key == "proxyHost"
-      @proxy_host = "-proxyHost '#{value}'"
+      @proxy_host = value
     elsif key == "proxyPort"
-      @proxy_port = "-proxyPort #{value}"
+      @proxy_port = value
     elsif key == "proxyUser"
-      @proxy_user = "-proxyUser '#{value}'"
+      @proxy_user = value
     elsif key == "proxyPass"
-      @proxy_pass = "-proxyPass '#{value}'"
+      @proxy_pass = value
     elsif key == "hosts"
       @hosts = value
     elsif key == "logfile"
@@ -53,7 +53,7 @@ class Local
       if value.to_s.downcase.eql?("true")
         @user_arguments << "-#{key}"
       else
-        @user_arguments << "-#{key} '#{value}'"
+        @user_arguments += ["-#{key}", value]
       end
     end
   end
@@ -122,11 +122,28 @@ class Local
   end
 
   def start_command
-    "#{@binary_path} -d start -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag} #{@local_identifier_flag} #{@only_flag} #{@only_automate_flag} #{@proxy_host} #{@proxy_port} #{@proxy_user} #{@proxy_pass} #{@force_proxy_flag} #{@force_flag} #{@verbose_flag} #{@hosts} #{@user_arguments.join(" ")} 2>&1".strip
+    cmd = "#{@binary_path} -d start -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag}"
+    cmd += " -localIdentifier #{@local_identifier_flag}" if @local_identifier_flag
+    cmd += " #{@only_flag} #{@only_automate_flag}"
+    cmd += " -proxyHost #{@proxy_host}" if @proxy_host
+    cmd += " -proxyPort #{@proxy_port}" if @proxy_port
+    cmd += " -proxyUser #{@proxy_user}" if @proxy_user
+    cmd += " -proxyPass #{@proxy_pass}" if @proxy_pass
+    cmd += " #{@force_proxy_flag} #{@force_flag} #{@verbose_flag} #{@hosts} #{@user_arguments.join(" ")} 2>&1"
+    cmd.strip
   end
 
   def start_command_args
-    args = ["#{@binary_path}", "-d", "start", "-logFile", "#{@logfile}", "#{@key}", "#{@folder_flag}", "#{@folder_path}", "#{@force_local_flag}", "#{@local_identifier_flag}", "#{@only_flag}", "#{@only_automate_flag}", "#{@proxy_host}", "#{@proxy_port}", "#{@proxy_user}", "#{@proxy_pass}", "#{@force_proxy_flag}","#{@force_flag}", "#{@verbose_flag}", "#{@hosts}", "#{@user_arguments.join(" ")}"]
+    args = [@binary_path, "-d", "start", "-logFile", @logfile, @key, @folder_flag, @folder_path, @force_local_flag]
+    args += ["-localIdentifier", local_identifier_flag] if @local_identifier_flag
+    args += [@only_flag, @only_automate_flag]
+    args += ["-proxyHost", @proxy_host] if @proxy_host
+    args += ["-proxyPort", @proxy_port] if @proxy_port
+    args += ["-proxyUser", @proxy_user] if @proxy_user
+    args += ["-proxyPass", @proxy_pass] if @proxy_pass
+    args += [@force_proxy_flag, @force_flag, @verbose_flag, @hosts]
+    args += @user_arguments
+
     args = args.select {|a| a.to_s != "" }
     args.push(:err => [:child, :out])
     args
