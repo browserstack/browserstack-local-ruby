@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'securerandom'
 require 'minitest'
 require 'minitest/autorun'
 require 'browserstack/local'
@@ -10,12 +9,12 @@ class BrowserStackLocalTest < Minitest::Test
   end
 
   def test_check_pid
-    @bs_local.start({"localIdentifier" => SecureRandom.hex})
+    @bs_local.start
     refute_nil @bs_local.pid, 0
   end
 
   def test_is_running
-    @bs_local.start({"localIdentifier" => SecureRandom.hex})
+    @bs_local.start
     assert_equal true, @bs_local.isRunning
   end
 
