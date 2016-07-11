@@ -135,7 +135,7 @@ class Local
 
   def start_command_args
     args = [@binary_path, "-d", "start", "-logFile", @logfile, @key, @folder_flag, @folder_path, @force_local_flag]
-    args += ["-localIdentifier", local_identifier_flag] if @local_identifier_flag
+    args += ["-localIdentifier", @local_identifier_flag] if @local_identifier_flag
     args += [@only_flag, @only_automate_flag]
     args += ["-proxyHost", @proxy_host] if @proxy_host
     args += ["-proxyPort", @proxy_port] if @proxy_port
