@@ -42,7 +42,7 @@ class LocalBinary
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
     res = http.get(uri.path)
-    file = open(binary_path, 'w')
+    file = open(binary_path, 'wb')
     file.write(res.body)
     file.close
     FileUtils.chmod 0755, binary_path
