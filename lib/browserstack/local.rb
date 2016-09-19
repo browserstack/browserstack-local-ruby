@@ -92,7 +92,7 @@ class Local
       data = JSON.parse(line) rescue {"message" => "Unable to parse daemon mode JSON output"}
       if data['state'].to_s != "connected"
         @process.close
-        raise BrowserStack::LocalException.new(data["message"])
+        raise BrowserStack::LocalException.new(data["message"]["message"])
         return
       else
         @pid = data["pid"]
