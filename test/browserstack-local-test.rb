@@ -15,7 +15,7 @@ class BrowserStackLocalTest < Minitest::Test
 
   def test_is_running
     @bs_local.start
-    assert_equal true, @bs_local.isRunning
+    assert_equal true, @bs_local.is_running
   end
 
   def test_multiple_binary
