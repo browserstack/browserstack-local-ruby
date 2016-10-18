@@ -101,7 +101,7 @@ class Local
     end
   end
 
-  def running?
+  def is_running?
     !! (!@pid.nil? && Process.kill(0, @pid)) rescue false
   end
 
