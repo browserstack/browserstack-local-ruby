@@ -50,13 +50,35 @@ class LocalBinary
     binary_path
   end
 
+  def verify_binary(binary_path)
+    binary_response = IO.popen(binary_path + " --version").readline
+    binary_response =~ /BrowserStack Local version \d+\.\d+/
+  rescue Exception => e
+    false
+  end
+
   def binary_path
     dest_parent_dir = get_available_dirs
     binary_path = File.join(dest_parent_dir, "BrowserStackLocal#{".exe" if @windows}")
+
     if File.exists? binary_path
       binary_path
     else
-      download(dest_parent_dir)
+      binary_path = download(dest_parent_dir)
+    end
+
+    valid_binary = verify_binary(binary_path)
+
+    if valid_binary
+      binary_path
+    else
+      binary_path = download(dest_parent_dir)
+      valid_binary = verify_binary(binary_path)
+      if valid_binary
+        binary_path
+      else
+        raise BrowserStack::LocalException.new('BrowserStack Local binary is corrupt')
+      end
     end
   end
 
