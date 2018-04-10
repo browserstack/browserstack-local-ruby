@@ -6,7 +6,7 @@ require 'tmpdir'
 require 'browserstack/localexception'
 
 module BrowserStack
-  
+
 class LocalBinary
   def initialize
     host_os = RbConfig::CONFIG['host_os']
@@ -39,7 +39,7 @@ class LocalBinary
     binary_path = File.join(dest_parent_dir, "BrowserStackLocal#{".exe" if @windows}")
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    http.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
     res = http.get(uri.path)
     file = open(binary_path, 'wb')
