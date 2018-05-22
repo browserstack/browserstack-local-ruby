@@ -34,40 +34,40 @@ bs_local.stop
 
 ## Arguments
 
-Apart from the key, all other BrowserStack Local modifiers are optional. For the full list of modifiers, refer [BrowserStack Local modifiers](https://www.browserstack.com/local-testing#modifiers). For examples, refer below -  
+Apart from the key, all other BrowserStack Local modifiers are optional. For the full list of modifiers, refer [BrowserStack Local modifiers](https://www.browserstack.com/local-testing#modifiers). For examples, refer below -
 
 #### Verbose Logging
-To enable verbose logging - 
+To enable verbose logging -
 ```
 bs_local_args = { "key" => "<browserstack-accesskey>" , "v" => "true"}
 ```
 
 #### Folder Testing
-To test local folder rather internal server, provide path to folder as value of this option - 
+To test local folder rather internal server, provide path to folder as value of this option -
 ```
 bs_local_args = { "key" => "<browserstack-accesskey>" , "f" => "/my/awesome/folder"}
 ```
 
-#### Force Start 
-To kill other running Browserstack Local instances - 
+#### Force Start
+To kill other running Browserstack Local instances -
 ```
 bs_local_args = { "key" => "<browserstack-accesskey>" , "force" => "true"}
 ```
 
 #### Only Automate
-To disable local testing for Live and Screenshots, and enable only Automate - 
+To disable local testing for Live and Screenshots, and enable only Automate -
 ```
 bs_local_args = { "key" => "<browserstack-accesskey>" , "onlyAutomate" => "true"}
 ```
 
 #### Force Local
-To route all traffic via local(your) machine - 
+To route all traffic via local(your) machine -
 ```
 bs_local_args = { "key" => "<browserstack-accesskey>" , "forcelocal" => "true"}
 ```
 
 #### Proxy
-To use a proxy for local testing -  
+To use a proxy for local testing -
 
 * proxyHost: Hostname/IP of proxy, remaining proxy options are ignored if this option is absent
 * proxyPort: Port for the proxy, defaults to 3128 when -proxyHost is used
@@ -79,7 +79,7 @@ bs_local_args = { "key" => "<browserstack-accesskey>", "proxyHost" => "127.0.0.1
 ```
 
 #### Local Identifier
-If doing simultaneous multiple local testing connections, set this uniquely for different processes - 
+If doing simultaneous multiple local testing connections, set this uniquely for different processes -
 ```
 bs_local_args = { "key" => "<browserstack-accesskey>" , "localIdentifier" => "randomstring"}
 ```
@@ -95,8 +95,8 @@ bs_local_args = { "key" => "<browserstack-accesskey>" , "binarypath" => "/browse
 ```
 
 #### Logfile
-To save the logs to the file while running with the '-v' argument, you can specify the path of the file. By default the logs are saved in the local.log file in the present woring directory. 
-To specify the path to file where the logs will be saved - 
+To save the logs to the file while running with the '-v' argument, you can specify the path of the file. By default the logs are saved in the local.log file in the present woring directory.
+To specify the path to file where the logs will be saved -
 ```
 bs_local_args = { "key" => "<browserstack-accesskey>" , "v" => "true", "logfile" => "/browserstack/logs.txt"}
 ```
@@ -107,7 +107,7 @@ bs_local_args = { "key" => "<browserstack-accesskey>" , "v" => "true", "logfile"
 
 To build gem, `rake build`.
 
-To run the test suite run, `rake test`.
+To run the test suite run, `BROWSERSTACK_ACCESS_KEY=<your_access_key> rake test`.
 
 ### Reporting bugs
 
