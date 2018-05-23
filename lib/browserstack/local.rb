@@ -102,7 +102,11 @@ class Local
   end
 
   def isRunning
-    return true if (!@pid.nil? && Process.kill(0, @pid)) ensure false
+    begin
+      (!@pid.nil? && Process.kill(0, @pid)) ? true : false
+    ensure
+      false
+    end
   end
 
   def stop
