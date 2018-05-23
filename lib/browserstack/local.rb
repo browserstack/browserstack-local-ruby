@@ -68,7 +68,7 @@ class Local
       else
         @binary_path
       end
-
+    
     if @is_windows
       system("echo > #{@logfile}")
     else

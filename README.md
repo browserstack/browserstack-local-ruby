@@ -67,7 +67,7 @@ bs_local_args = { "key" => "<browserstack-accesskey>" , "forcelocal" => "true"}
 ```
 
 #### Proxy
-To use a proxy for local testing - 
+To use a proxy for local testing -  
 
 * proxyHost: Hostname/IP of proxy, remaining proxy options are ignored if this option is absent
 * proxyPort: Port for the proxy, defaults to 3128 when -proxyHost is used
