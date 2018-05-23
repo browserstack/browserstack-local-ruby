@@ -44,6 +44,12 @@ class BrowserStackLocalTest < Minitest::Test
     assert_equal false, @bs_local.isRunning
   end
 
+  def test_isRunning_crashed
+    @bs_local.instance_variable_set(:@pid,1000000000) # probably non-existant pid
+    assert_equal false, @bs_local.isRunning
+    @bs_local.instance_variable_set(:@pid,nil)
+  end
+
   def test_enable_verbose
     @bs_local.add_args('v')
     assert_match /\-v/, @bs_local.command

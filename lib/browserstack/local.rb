@@ -104,7 +104,7 @@ class Local
   def isRunning
     begin
       (!@pid.nil? && Process.kill(0, @pid)) ? true : false
-    ensure
+    rescue
       false
     end
   end
