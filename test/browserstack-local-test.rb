@@ -28,6 +28,17 @@ class BrowserStackLocalTest < Minitest::Test
     File.delete(second_log_file)
   end
 
+  def test_localId_independence
+    @bs_local.start
+    bs_local_by_ID = BrowserStack::Local.new
+    bs_local_by_ID.start({'localIdentifier' => "uniqueID"})
+    assert_equal true, @bs_local.isRunning
+    assert_equal true, bs_local_by_ID.isRunning
+    bs_local_by_ID.stop
+    assert_equal true, @bs_local.isRunning
+    assert_equal false, bs_local_by_ID.isRunning
+  end
+
   def test_enable_verbose
     @bs_local.add_args('v')
     assert_match /\-v/, @bs_local.command
