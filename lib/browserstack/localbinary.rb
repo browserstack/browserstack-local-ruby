@@ -13,14 +13,16 @@ class LocalBinary
     @http_path = case host_os
     when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
       @windows = true
-      "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe"
+      "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal.exe"
     when /darwin|mac os/
-      "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64"
+      "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-darwin-x64"
+    when /linux-musl/
+      "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-alpine"
     when /linux/
       if 1.size == 8
-        "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-x64"
+        "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-linux-x64"
       else
-        "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32"
+        "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-linux-ia32"
       end
     end
 
