@@ -10,7 +10,7 @@ class Local
   def initialize(key = ENV["BROWSERSTACK_ACCESS_KEY"])
     @key = key
     @user_arguments = []
-    @logfile = File.join(Dir.pwd, "locl.log")
+    @logfile = File.join(Dir.pwd, "local.log")
     @is_windows = RbConfig::CONFIG['host_os'].match(/mswin|msys|mingw|cygwin|bccwin|wince|emc|win32/)
     @exec = @is_windows ? "call" : "exec";
   end
