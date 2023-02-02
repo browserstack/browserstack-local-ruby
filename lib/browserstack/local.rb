@@ -10,7 +10,7 @@ class Local
   def initialize(key = ENV["BROWSERSTACK_ACCESS_KEY"])
     @key = key
     @user_arguments = []
-    @logfile = File.join(Dir.pwd, "local.log")
+    @logfile = File.join(Dir.pwd, "locl.log")
     @is_windows = RbConfig::CONFIG['host_os'].match(/mswin|msys|mingw|cygwin|bccwin|wince|emc|win32/)
     @exec = @is_windows ? "call" : "exec";
   end
@@ -150,11 +150,16 @@ class Local
   end
 
   def stop_command
-    "#{@binary_path} -d stop #{@local_identifier_flag}".strip
+    if @local_identifier_flag
+      return "#{@binary_path} -d stop -localIdentifier #{@local_identifier_flag}".strip
+    else
+      return "#{@binary_path} -d stop".strip
+    end
   end
 
   def stop_command_args
-    args = ["#{@binary_path}", "-d", "stop", "#{@local_identifier_flag}"]
+    args = ["#{@binary_path}", "-d", "stop"]
+    args +=  ["-localIdentifier", "#{@local_identifier_flag}"] if @local_identifier_flag
     args = args.select {|a| a.to_s != "" }
     args.push(:err => [:child, :out])
     args
