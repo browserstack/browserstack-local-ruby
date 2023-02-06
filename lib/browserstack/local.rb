@@ -150,11 +150,16 @@ class Local
   end
 
   def stop_command
-    "#{@binary_path} -d stop #{@local_identifier_flag}".strip
+    if @local_identifier_flag
+      return "#{@binary_path} -d stop -localIdentifier #{@local_identifier_flag}".strip
+    else
+      return "#{@binary_path} -d stop".strip
+    end
   end
 
   def stop_command_args
-    args = ["#{@binary_path}", "-d", "stop", "#{@local_identifier_flag}"]
+    args = ["#{@binary_path}", "-d", "stop"]
+    args +=  ["-localIdentifier", "#{@local_identifier_flag}"] if @local_identifier_flag
     args = args.select {|a| a.to_s != "" }
     args.push(:err => [:child, :out])
     args
