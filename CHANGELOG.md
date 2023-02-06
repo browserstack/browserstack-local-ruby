@@ -6,15 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
-## [1.4.0] - 2022-07-20
- 
-### Added
-- Added support for running in Alpine Linux
-
-### Changed
-
-- Updated README
-
+## [1.4.1] - 2023-02-06
 
 ### Fixed
- 
+Stop API in case of multiple instances on same machine
