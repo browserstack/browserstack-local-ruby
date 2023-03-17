@@ -63,7 +63,7 @@ class LocalBinary
     dest_parent_dir = get_available_dirs
     binary_path = File.join(dest_parent_dir, "BrowserStackLocal#{".exe" if @windows}")
 
-    if File.exists? binary_path
+    if File.exist? binary_path
       binary_path
     else
       binary_path = download(dest_parent_dir)
