@@ -34,7 +34,7 @@ class LocalBinary
   end
 
   def download(dest_parent_dir)
-    unless File.exists? dest_parent_dir
+    unless File.exist? dest_parent_dir
       Dir.mkdir dest_parent_dir
     end
     uri = URI.parse(@http_path)
