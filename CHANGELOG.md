@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
-## [1.4.1] - 2023-02-06
+## [1.4.2] - 2023-06-06
 
-### Fixed
-Stop API in case of multiple instances on same machine
+### Changed
+Update download links
