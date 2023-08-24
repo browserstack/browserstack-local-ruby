@@ -34,7 +34,7 @@ class LocalBinary
   end
 
   def download(dest_parent_dir)
-    unless File.exists? dest_parent_dir
+    unless File.exist? dest_parent_dir
       Dir.mkdir dest_parent_dir
     end
     uri = URI.parse(@http_path)
@@ -63,7 +63,7 @@ class LocalBinary
     dest_parent_dir = get_available_dirs
     binary_path = File.join(dest_parent_dir, "BrowserStackLocal#{".exe" if @windows}")
 
-    if File.exists? binary_path
+    if File.exist? binary_path
       binary_path
     else
       binary_path = download(dest_parent_dir)
