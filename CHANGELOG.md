@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
-## [1.4.2] - 2023-06-06
+## [
+1.4.3] - 2023-08-24
 
 ### Changed
-Update download links
+Ruby 3 exists? deprecation fix
