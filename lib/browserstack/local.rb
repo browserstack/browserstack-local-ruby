@@ -1,18 +1,19 @@
 require 'browserstack/localbinary'
 require 'browserstack/localexception'
 require 'json'
+require 'subprocess'
 
 module BrowserStack
 
 class Local
   attr_reader :pid
 
-  def initialize(key = ENV["BROWSERSTACK_ACCESS_KEY"])
+  def initialize(key = ENV["BROWSERSTACK_ACCESS_KEY"], startup_timeout = 120)
     @key = key
     @user_arguments = []
     @logfile = File.join(Dir.pwd, "local.log")
     @is_windows = RbConfig::CONFIG['host_os'].match(/mswin|msys|mingw|cygwin|bccwin|wince|emc|win32/)
-    @exec = @is_windows ? "call" : "exec";
+    @startup_timeout = startup_timeout
   end
 
   def add_args(key, value=nil)
@@ -68,22 +69,22 @@ class Local
       else
         @binary_path
       end
-    
-    if @is_windows
-      system("echo > #{@logfile}")
-    else
-      system("echo '' > '#{@logfile}'")
+
+    # ensure the logfile exists
+    File.open(@logfile, "a") do
     end
 
-    if defined? spawn
-      @process = IO.popen(start_command_args)
-    else
-      @process = IO.popen(start_command)
-    end
+    @process = Subprocess::Process.new(start_command_args, stdout: Subprocess::PIPE, stderr: Subprocess::STDOUT)
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + @startup_timeout
 
-    while true
+    while Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
       begin
-        line = @process.readline
+        remaining = [Process.clock_gettime(Process::CLOCK_MONOTONIC) - deadline, 1].max
+        if IO.select([@process.stdout], [], [@process.stdout], remaining).nil?
+          sleep 1
+          next
+        end
+        line = @process.stdout.readline
       rescue EOFError => e
         sleep 1
         next
@@ -91,12 +92,13 @@ class Local
 
       data = JSON.parse(line) rescue {"message" => "Unable to parse daemon mode JSON output"}
       if data['state'].to_s != "connected"
-        @process.close
         raise BrowserStack::LocalException.new(data["message"]["message"])
         return
       else
         @pid = data["pid"]
-        break
+        @process.wait
+        @process = nil
+        return
       end
     end
   end
@@ -107,30 +109,13 @@ class Local
 
   def stop
     return if @pid.nil?
-    @process.close
-    if defined? spawn
-      @process = IO.popen(stop_command_args)
-    else
-      @process = IO.popen(stop_command)
+    unless @process.nil?
+      @process.terminate
+      @process.wait
+      @process = nil
     end
-    @process.close
+    Subprocess.check_call(stop_command_args)
     @pid = nil
-  end
-
-  def command
-    start_command
-  end
-
-  def start_command
-    cmd = "#{@binary_path} -d start -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag}"
-    cmd += " -localIdentifier #{@local_identifier_flag}" if @local_identifier_flag
-    cmd += " #{@only_flag} #{@only_automate_flag}"
-    cmd += " -proxyHost #{@proxy_host}" if @proxy_host
-    cmd += " -proxyPort #{@proxy_port}" if @proxy_port
-    cmd += " -proxyUser #{@proxy_user}" if @proxy_user
-    cmd += " -proxyPass #{@proxy_pass}" if @proxy_pass
-    cmd += " #{@force_proxy_flag} #{@force_flag} #{@verbose_flag} #{@hosts} #{@user_arguments.join(" ")} 2>&1"
-    cmd.strip
   end
 
   def start_command_args
@@ -144,25 +129,13 @@ class Local
     args += [@force_proxy_flag, @force_flag, @verbose_flag, @hosts]
     args += @user_arguments
 
-    args = args.select {|a| a.to_s != "" }
-    args.push(:err => [:child, :out])
-    args
-  end
-
-  def stop_command
-    if @local_identifier_flag
-      return "#{@binary_path} -d stop -localIdentifier #{@local_identifier_flag}".strip
-    else
-      return "#{@binary_path} -d stop".strip
-    end
+    args.select {|a| a.to_s != "" }
   end
 
   def stop_command_args
     args = ["#{@binary_path}", "-d", "stop"]
     args +=  ["-localIdentifier", "#{@local_identifier_flag}"] if @local_identifier_flag
-    args = args.select {|a| a.to_s != "" }
-    args.push(:err => [:child, :out])
-    args
+    args.select {|a| a.to_s != "" }
   end
 end
 
