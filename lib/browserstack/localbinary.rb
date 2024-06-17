@@ -13,16 +13,16 @@ class LocalBinary
     @http_path = case host_os
     when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
       @windows = true
-      "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal.exe"
+      "https://www.browserstack.com/local-testing/downloads/bin/BrowserStackLocal.exe"
     when /darwin|mac os/
-      "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-darwin-x64"
+      "https://www.browserstack.com/local-testing/downloads/bin/BrowserStackLocal-darwin-x64"
     when /linux-musl/
-      "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-alpine"
+      "https://www.browserstack.com/local-testing/downloads/bin/BrowserStackLocal-alpine"
     when /linux/
       if 1.size == 8
-        "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-linux-x64"
+        "https://www.browserstack.com/local-testing/downloads/bin/BrowserStackLocal-linux-x64"
       else
-        "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-linux-ia32"
+        "https://www.browserstack.com/local-testing/downloads/bin/BrowserStackLocal-linux-ia32"
       end
     end
 
