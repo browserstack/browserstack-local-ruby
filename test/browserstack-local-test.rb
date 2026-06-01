@@ -100,3 +100,73 @@ class BrowserStackLocalTest < Minitest::Test
     @bs_local.stop
   end
 end
+
+class BrowserStackLocalBinaryTest < Minitest::Test
+  def test_default_user_agent_contains_gem_name_and_version
+    ua = BrowserStack::LocalBinary.new(auth_token: 'fake').instance_variable_get(:@user_agent)
+    assert_match(/^browserstack-local-ruby\/#{Regexp.escape(BrowserStack::VERSION)}$/, ua)
+  end
+
+  def test_custom_user_agent_respected
+    ua = BrowserStack::LocalBinary.new(auth_token: 'fake', user_agent: 'custom/1.0').instance_variable_get(:@user_agent)
+    assert_equal 'custom/1.0', ua
+  end
+
+  def test_linux_arm64_picks_arm64_binary
+    with_host_config('linux-gnu', 'aarch64') do
+      assert_equal 'BrowserStackLocal-linux-arm64',
+                   BrowserStack::LocalBinary.new.send(:compute_binary_filename)
+    end
+  end
+
+  def test_linux_arm64_alt_cpu_name_picks_arm64_binary
+    with_host_config('linux-gnu', 'arm64') do
+      assert_equal 'BrowserStackLocal-linux-arm64',
+                   BrowserStack::LocalBinary.new.send(:compute_binary_filename)
+    end
+  end
+
+  def test_alpine_arm64_picks_arm64_not_alpine
+    # Matches Node SDK: arm64 wins over musl on Linux
+    with_host_config('linux-musl', 'aarch64') do
+      assert_equal 'BrowserStackLocal-linux-arm64',
+                   BrowserStack::LocalBinary.new.send(:compute_binary_filename)
+    end
+  end
+
+  def test_alpine_x64_picks_alpine_binary
+    with_host_config('linux-musl', 'x86_64') do
+      assert_equal 'BrowserStackLocal-alpine',
+                   BrowserStack::LocalBinary.new.send(:compute_binary_filename)
+    end
+  end
+
+  def test_darwin_arm64_picks_darwin_x64
+    # No darwin-arm64 binary; runs under Rosetta. Matches Node.
+    with_host_config('darwin22', 'arm64') do
+      assert_equal 'BrowserStackLocal-darwin-x64',
+                   BrowserStack::LocalBinary.new.send(:compute_binary_filename)
+    end
+  end
+
+  def test_local_binary_accepts_proxy_conf
+    bin = BrowserStack::LocalBinary.new(
+      auth_token: 'fake',
+      proxy_host: 'proxy.example.com',
+      proxy_port: 8080
+    )
+    assert_equal 'proxy.example.com', bin.instance_variable_get(:@proxy_host)
+    assert_equal 8080, bin.instance_variable_get(:@proxy_port)
+  end
+
+  private
+
+  def with_host_config(host_os, host_cpu)
+    orig = RbConfig::CONFIG.dup
+    RbConfig::CONFIG['host_os'] = host_os
+    RbConfig::CONFIG['host_cpu'] = host_cpu
+    yield
+  ensure
+    RbConfig::CONFIG.replace(orig)
+  end
+end

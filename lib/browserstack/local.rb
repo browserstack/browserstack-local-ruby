@@ -64,7 +64,11 @@ class Local
     end
 
     @binary_path = if @binary_path.nil?
-        BrowserStack::LocalBinary.new.binary_path
+        BrowserStack::LocalBinary.new(
+          auth_token: @key,
+          proxy_host: @proxy_host,
+          proxy_port: @proxy_port
+        ).binary_path
       else
         @binary_path
       end
