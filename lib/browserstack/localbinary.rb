@@ -119,6 +119,8 @@ class LocalBinary
     http = http_class.new(uri.host, uri.port)
     http.use_ssl = (uri.scheme == 'https')
     http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    http.open_timeout = 10
+    http.read_timeout = 30
 
     req = Net::HTTP::Get.new(uri.request_uri)
     req['User-Agent'] = @user_agent

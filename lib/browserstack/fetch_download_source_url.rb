@@ -25,6 +25,8 @@ module BrowserStack
       http = http_class.new(uri.host, uri.port)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http.open_timeout = 10
+      http.read_timeout = 15
 
       req = Net::HTTP::Post.new(uri.request_uri)
       req['Content-Type'] = 'application/json'
