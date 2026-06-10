@@ -11,6 +11,11 @@ module BrowserStack
     ALLOWED_DOWNLOAD_HOSTS = ['browserstack.com'].freeze
     ALLOWED_DOWNLOAD_HOST_SUFFIXES = ['.browserstack.com'].freeze
 
+    # Each guard below covers a case the final host-equals check does not:
+    #   - nil/empty URL: URI.parse(nil) raises TypeError before the rescue can catch it.
+    #   - URI::InvalidURIError: convert raw Ruby error into BrowserStack::LocalException for the public contract.
+    #   - HTTPS check: allowlist matches host only; without this, http://browserstack.com would pass.
+    #   - nil/empty host: uri.host is nil for URIs like https:///foo, which would crash on downcase.
     def self.validate_source_url(url)
       if url.nil? || url.to_s.empty?
         raise BrowserStack::LocalException.new('Refusing binary download: empty source URL')
