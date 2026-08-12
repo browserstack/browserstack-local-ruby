@@ -1,3 +1,8 @@
 dist/*
 *.log
 browserstack.err
+
+# Local Bundler state. .bundle/config can carry settings that weaken install-time
+# integrity checks (e.g. disable_checksum_validation), so it must never be committed.
+.bundle/
+vendor/bundle/
