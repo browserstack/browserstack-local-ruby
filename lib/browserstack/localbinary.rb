@@ -133,7 +133,9 @@ class LocalBinary
   end
 
   def verify_binary(bin_path)
-    binary_response = IO.popen(bin_path + " --version").readline
+    # Array form: exec's the binary directly, so a path containing shell
+    # metacharacters or spaces is never interpreted by /bin/sh (CWE-78).
+    binary_response = IO.popen([bin_path, '--version']).readline
     !!(binary_response =~ /BrowserStack Local version \d+\.\d+/)
   rescue StandardError
     false
