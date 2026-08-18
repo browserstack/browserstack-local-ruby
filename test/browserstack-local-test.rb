@@ -141,9 +141,16 @@ class BrowserStackLocalBinaryTest < Minitest::Test
     end
   end
 
-  def test_darwin_arm64_picks_darwin_x64
-    # No darwin-arm64 binary; runs under Rosetta. Matches Node.
+  def test_darwin_arm64_picks_darwin_arm64
     with_host_config('darwin22', 'arm64') do
+      assert_equal 'BrowserStackLocal-darwin-arm64',
+                   BrowserStack::LocalBinary.new.send(:compute_binary_filename)
+    end
+  end
+
+  def test_darwin_x64_picks_darwin_x64
+    # x64 runtime (including x64-under-Rosetta) keeps the x64 binary
+    with_host_config('darwin22', 'x86_64') do
       assert_equal 'BrowserStackLocal-darwin-x64',
                    BrowserStack::LocalBinary.new.send(:compute_binary_filename)
     end

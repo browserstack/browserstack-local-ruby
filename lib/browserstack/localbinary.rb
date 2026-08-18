@@ -55,7 +55,11 @@ class LocalBinary
     when /mswin|msys|mingw|cygwin|bccwin|wince|emc/
       'BrowserStackLocal.exe'
     when /darwin|mac os/
-      'BrowserStackLocal-darwin-x64'
+      if host_cpu =~ /arm64|aarch64/
+        'BrowserStackLocal-darwin-arm64'
+      else
+        'BrowserStackLocal-darwin-x64'
+      end
     when /linux/
       if host_cpu =~ /arm64|aarch64/
         'BrowserStackLocal-linux-arm64'
