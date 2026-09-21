@@ -1,6 +1,7 @@
 require 'browserstack/localbinary'
 require 'browserstack/localexception'
 require 'json'
+require 'fileutils'
 
 module BrowserStack
 
@@ -73,10 +74,16 @@ class Local
         @binary_path
       end
     
-    if @is_windows
-      system("echo > #{@logfile}")
-    else
-      system("echo '' > '#{@logfile}'")
+    # Create/truncate the logfile without a shell. The previous
+    # `system("echo ... > #{@logfile}")` passed @logfile to /bin/sh (or cmd.exe),
+    # so shell metacharacters in a caller-supplied logfile path executed as commands
+    # (CWE-78). File.write treats the path purely as a filename.
+    logfile_dir = File.dirname(@logfile)
+    FileUtils.mkdir_p(logfile_dir) unless File.directory?(logfile_dir)
+    begin
+      File.write(@logfile, "")
+    rescue SystemCallError => e
+      raise BrowserStack::LocalException.new("Unable to open logfile: #{e.message}")
     end
 
     if defined? spawn
