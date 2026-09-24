@@ -8,17 +8,28 @@ class BrowserStackLocalTest < Minitest::Test
     @bs_local = BrowserStack::Local.new
   end
 
+  # The tests below actually start the BrowserStackLocal binary and open a
+  # tunnel, so they need a valid BROWSERSTACK_ACCESS_KEY and network access.
+  # Skip them (instead of erroring) when no key is available so the rest of
+  # the suite stays green in credential-less environments such as CI.
+  def skip_without_credentials
+    skip 'requires BROWSERSTACK_ACCESS_KEY (live integration test)' if ENV['BROWSERSTACK_ACCESS_KEY'].to_s.empty?
+  end
+
   def test_check_pid
+    skip_without_credentials
     @bs_local.start
     refute_nil @bs_local.pid, 0
   end
 
   def test_is_running
+    skip_without_credentials
     @bs_local.start
     assert_equal true, @bs_local.isRunning
   end
 
   def test_multiple_binary
+    skip_without_credentials
     @bs_local.start
     bs_local_2 = BrowserStack::Local.new
     second_log_file = File.join(Dir.pwd, 'local2.log')
