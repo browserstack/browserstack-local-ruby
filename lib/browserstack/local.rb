@@ -128,12 +128,27 @@ class Local
     @pid = nil
   end
 
+  # Public accessor used by callers for debugging/logging. Return the command
+  # with the access key masked so it is never written to logs, CI artifacts or
+  # error trackers (CWE-312). The real key is still used for execution via
+  # start_command_args / start_command(false).
   def command
-    start_command
+    start_command(true)
   end
 
-  def start_command
-    cmd = "#{@binary_path} -d start -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag}"
+  # Prevent Ruby's default #inspect from dumping @key when a Local instance is
+  # logged or included in an exception payload (CWE-312).
+  def inspect
+    redacted = instance_variables.map do |var|
+      value = var == :@key && !@key.to_s.empty? ? "[REDACTED]" : instance_variable_get(var)
+      "#{var}=#{value.inspect}"
+    end.join(", ")
+    "#<#{self.class}:0x#{format('%016x', object_id << 1)} #{redacted}>"
+  end
+
+  def start_command(redact = false)
+    key = redact && !@key.to_s.empty? ? "[REDACTED]" : @key
+    cmd = "#{@binary_path} -d start -logFile '#{@logfile}' #{@folder_flag} #{key} #{@folder_path} #{@force_local_flag}"
     cmd += " -localIdentifier #{@local_identifier_flag}" if @local_identifier_flag
     cmd += " #{@only_flag} #{@only_automate_flag}"
     cmd += " -proxyHost #{@proxy_host}" if @proxy_host

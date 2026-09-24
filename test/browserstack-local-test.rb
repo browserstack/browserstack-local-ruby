@@ -109,6 +109,27 @@ class BrowserStackLocalTest < Minitest::Test
     assert_match /localhost\,8080\,0/, @bs_local.command
   end
 
+  # Regression for CWE-312: the public #command accessor must NOT expose the
+  # access key — callers routinely log it to CI output / APM / error trackers.
+  def test_command_redacts_access_key
+    bs = BrowserStack::Local.new("MY_SECRET_ACCESS_KEY")
+    refute_match /MY_SECRET_ACCESS_KEY/, bs.command
+    assert_match /\[REDACTED\]/, bs.command
+  end
+
+  # The real key must still reach the binary on the execution path.
+  def test_start_command_keeps_key_for_execution
+    bs = BrowserStack::Local.new("MY_SECRET_ACCESS_KEY")
+    assert_match /MY_SECRET_ACCESS_KEY/, bs.start_command
+  end
+
+  # Regression for CWE-312: default object inspection must not dump the key.
+  def test_inspect_redacts_access_key
+    bs = BrowserStack::Local.new("MY_SECRET_ACCESS_KEY")
+    refute_match /MY_SECRET_ACCESS_KEY/, bs.inspect
+    assert_match /\[REDACTED\]/, bs.inspect
+  end
+
   def teardown
     @bs_local.stop
   end
