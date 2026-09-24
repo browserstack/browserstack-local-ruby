@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'minitest'
 require 'minitest/autorun'
+require 'minitest/mock'
+require 'tmpdir'
 require 'browserstack/local'
 
 class BrowserStackLocalTest < Minitest::Test
@@ -109,6 +111,61 @@ class BrowserStackLocalTest < Minitest::Test
 
   def teardown
     @bs_local.stop
+  end
+end
+
+# Regression tests for the logfile-creation step in Local#start (CWE-78).
+# The logfile used to be created with `system("echo ... > #{@logfile}")`, which
+# passed the caller-supplied path through a shell. These tests drive the public
+# `start` entry point but abort just after the logfile step (a fake binarypath
+# skips the download; stubbing start_command_args prevents launching the binary),
+# so they need no credentials, network, or tunnel.
+class BrowserStackLocalLogfileTest < Minitest::Test
+  class AbortAfterLogfile < StandardError; end
+
+  # Runs `start` with the given logfile value, aborting right after the logfile
+  # is created (before the real binary is spawned).
+  def start_up_to_logfile(logfile_value)
+    bs = BrowserStack::Local.new('dummy_key')
+    bs.stub(:start_command_args, ->(*) { raise AbortAfterLogfile }) do
+      begin
+        # An existing, harmless executable as binarypath skips the binary download.
+        bs.start('binarypath' => existing_executable, 'logfile' => logfile_value)
+      rescue AbortAfterLogfile
+        # expected: we intentionally stop before launching the binary
+      end
+    end
+  end
+
+  def existing_executable
+    ['/bin/true', '/usr/bin/true'].find { |p| File.executable?(p) } || RbConfig.ruby
+  end
+
+  def test_shell_metacharacters_in_logfile_path_are_not_executed
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        marker = File.join(dir, 'pwned')
+        # Unix payload: close the single quote around @logfile, run touch, reopen.
+        # Pre-fix this expands to: echo '' > 'log' ; touch <marker> ; echo 'x'
+        payload = "log' ; touch #{marker} ; echo 'x"
+
+        start_up_to_logfile(payload)
+
+        refute File.exist?(marker),
+               'shell metacharacters in the logfile path were executed (command injection)'
+      end
+    end
+  end
+
+  def test_logfile_path_is_treated_as_a_literal_filename
+    Dir.mktmpdir do |dir|
+      logfile = File.join(dir, 'sub', 'my log.txt') # spaces + missing subdir
+      start_up_to_logfile(logfile)
+
+      assert File.file?(logfile),
+             'the logfile should be created as a literal path, even with spaces / a missing dir'
+      assert_equal '', File.read(logfile), 'the logfile should be truncated to empty'
+    end
   end
 end
 
