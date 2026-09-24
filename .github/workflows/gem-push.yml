@@ -11,13 +11,13 @@ jobs:
       id-token: write
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
     - name: Set up Ruby 2.6
-      uses: ruby/setup-ruby@v1
+      uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073 # v1.324.0
       with:
         ruby-version: 2.6.10
 
-    - uses: rubygems/configure-rubygems-credentials@v2.0.0
+    - uses: rubygems/configure-rubygems-credentials@762a4b77c3300434bb57c7ce80b20e36231927aa # v2.0.0
     - name: Build and push gem
       run: |
         gem build *.gemspec
