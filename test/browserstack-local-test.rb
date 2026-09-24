@@ -170,6 +170,62 @@ class BrowserStackLocalBinaryTest < Minitest::Test
     assert_equal 8080, bin.instance_variable_get(:@proxy_port)
   end
 
+  # Regression: verify_binary must exec the binary directly, never via a shell,
+  # so shell metacharacters in the cached-binary path cannot run commands (CWE-78).
+  def test_verify_binary_does_not_interpret_shell_metacharacters_in_path
+    marker = File.join(Dir.tmpdir, "bs_local_verify_injection_#{Process.pid}")
+    File.delete(marker) if File.exist?(marker)
+    injected = "/nonexistent;touch #{marker};echo BrowserStack Local version 9.9;#"
+
+    assert_equal false, BrowserStack::LocalBinary.new(auth_token: 'fake').send(:verify_binary, injected)
+    refute File.exist?(marker), 'shell metacharacters in the binary path were executed'
+  ensure
+    File.delete(marker) if marker && File.exist?(marker)
+  end
+
+  # Stronger form of the above: a REAL binary living under a hostile-looking
+  # directory name. Pins the array-form behaviour itself rather than just an
+  # ENOENT, so a future "fix" that swapped the array form for a character
+  # allowlist would fail here — the injected command must not run AND the
+  # legitimate binary at that path must still verify.
+  def test_verify_binary_runs_a_real_binary_at_a_path_containing_shell_metacharacters
+    skip 'needs a POSIX shell to stand in for the binary' if Gem.win_platform?
+
+    marker = File.join(Dir.tmpdir, "bs_local_verify_dir_injection_#{Process.pid}")
+    File.delete(marker) if File.exist?(marker)
+
+    base = Dir.mktmpdir('bs_local')
+    dir = File.join(base, "h;touch #{marker};echo BrowserStack Local version 9.9;#")
+    FileUtils.mkdir_p(dir)
+    bin = File.join(dir, 'BrowserStackLocal')
+    File.write(bin, "#!/bin/sh\necho 'BrowserStack Local version 9.9'\n")
+    FileUtils.chmod(0755, bin)
+
+    assert_equal true, BrowserStack::LocalBinary.new(auth_token: 'fake').send(:verify_binary, bin)
+    refute File.exist?(marker), 'shell metacharacters in the binary path were executed'
+  ensure
+    File.delete(marker) if marker && File.exist?(marker)
+    FileUtils.remove_entry(base) if base && File.directory?(base)
+  end
+
+  # Same fix, benign side: a legitimate path containing spaces must still verify
+  # (the shell used to split it and the check failed for every such user).
+  def test_verify_binary_accepts_a_path_containing_spaces
+    skip 'needs a POSIX shell to stand in for the binary' if Gem.win_platform?
+
+    base = Dir.mktmpdir('bs_local')
+    dir = File.join(base, 'my binary dir')
+    FileUtils.mkdir_p(dir)
+    bin = File.join(dir, 'BrowserStackLocal')
+    File.write(bin, "#!/bin/sh\necho 'BrowserStack Local version 9.9'\n")
+    FileUtils.chmod(0755, bin)
+
+    assert_includes bin, ' '
+    assert_equal true, BrowserStack::LocalBinary.new(auth_token: 'fake').send(:verify_binary, bin)
+  ensure
+    FileUtils.remove_entry(base) if base && File.directory?(base)
+  end
+
   private
 
   def with_host_config(host_os, host_cpu)
