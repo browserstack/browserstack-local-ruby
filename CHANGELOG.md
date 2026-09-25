@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased] - yyyy-mm-dd
 
+## [1.5.1] - 2026-09-25
+
+### Improvements
+
+- Prevent shell commands passed through logfile path.
+
 ## [1.5.0] - 2026-06-01
 
 ### Added

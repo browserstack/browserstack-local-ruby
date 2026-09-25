@@ -133,7 +133,14 @@ class LocalBinary
   end
 
   def verify_binary(bin_path)
-    binary_response = IO.popen(bin_path + " --version").readline
+    # Array form: exec's the binary directly, so a path containing shell
+    # metacharacters or spaces is never interpreted by /bin/sh (CWE-78).
+    #
+    # The scanner rule below fires on any non-static first argument to IO.popen
+    # and does not model the array form -- which is exactly the fix here, since
+    # no shell is spawned at all. Suppressed for this rule only.
+    # nosemgrep: ruby.lang.security.dangerous-exec.dangerous-exec
+    binary_response = IO.popen([bin_path, '--version']).readline
     !!(binary_response =~ /BrowserStack Local version \d+\.\d+/)
   rescue StandardError
     false

@@ -1,6 +1,7 @@
 require 'browserstack/localbinary'
 require 'browserstack/localexception'
 require 'json'
+require 'fileutils'
 
 module BrowserStack
 
@@ -73,10 +74,16 @@ class Local
         @binary_path
       end
     
-    if @is_windows
-      system("echo > #{@logfile}")
-    else
-      system("echo '' > '#{@logfile}'")
+    # Create/truncate the logfile without a shell. The previous
+    # `system("echo ... > #{@logfile}")` passed @logfile to /bin/sh (or cmd.exe),
+    # so shell metacharacters in a caller-supplied logfile path executed as commands
+    # (CWE-78). File.write treats the path purely as a filename.
+    logfile_dir = File.dirname(@logfile)
+    FileUtils.mkdir_p(logfile_dir) unless File.directory?(logfile_dir)
+    begin
+      File.write(@logfile, "")
+    rescue SystemCallError => e
+      raise BrowserStack::LocalException.new("Unable to open logfile: #{e.message}")
     end
 
     if defined? spawn
@@ -121,12 +128,27 @@ class Local
     @pid = nil
   end
 
+  # Public accessor used by callers for debugging/logging. Return the command
+  # with the access key masked so it is never written to logs, CI artifacts or
+  # error trackers (CWE-312). The real key is still used for execution via
+  # start_command_args / start_command(false).
   def command
-    start_command
+    start_command(true)
   end
 
-  def start_command
-    cmd = "#{@binary_path} -d start -logFile '#{@logfile}' #{@folder_flag} #{@key} #{@folder_path} #{@force_local_flag}"
+  # Prevent Ruby's default #inspect from dumping @key when a Local instance is
+  # logged or included in an exception payload (CWE-312).
+  def inspect
+    redacted = instance_variables.map do |var|
+      value = var == :@key && !@key.to_s.empty? ? "[REDACTED]" : instance_variable_get(var)
+      "#{var}=#{value.inspect}"
+    end.join(", ")
+    "#<#{self.class}:0x#{format('%016x', object_id << 1)} #{redacted}>"
+  end
+
+  def start_command(redact = false)
+    key = redact && !@key.to_s.empty? ? "[REDACTED]" : @key
+    cmd = "#{@binary_path} -d start -logFile '#{@logfile}' #{@folder_flag} #{key} #{@folder_path} #{@force_local_flag}"
     cmd += " -localIdentifier #{@local_identifier_flag}" if @local_identifier_flag
     cmd += " #{@only_flag} #{@only_automate_flag}"
     cmd += " -proxyHost #{@proxy_host}" if @proxy_host

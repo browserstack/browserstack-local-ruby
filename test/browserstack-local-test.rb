@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'minitest'
 require 'minitest/autorun'
+require 'minitest/mock'
+require 'tmpdir'
 require 'browserstack/local'
 
 class BrowserStackLocalTest < Minitest::Test
@@ -8,17 +10,28 @@ class BrowserStackLocalTest < Minitest::Test
     @bs_local = BrowserStack::Local.new
   end
 
+  # The tests below actually start the BrowserStackLocal binary and open a
+  # tunnel, so they need a valid BROWSERSTACK_ACCESS_KEY and network access.
+  # Skip them (instead of erroring) when no key is available so the rest of
+  # the suite stays green in credential-less environments such as CI.
+  def skip_without_credentials
+    skip 'requires BROWSERSTACK_ACCESS_KEY (live integration test)' if ENV['BROWSERSTACK_ACCESS_KEY'].to_s.empty?
+  end
+
   def test_check_pid
+    skip_without_credentials
     @bs_local.start
     refute_nil @bs_local.pid, 0
   end
 
   def test_is_running
+    skip_without_credentials
     @bs_local.start
     assert_equal true, @bs_local.isRunning
   end
 
   def test_multiple_binary
+    skip_without_credentials
     @bs_local.start
     bs_local_2 = BrowserStack::Local.new
     second_log_file = File.join(Dir.pwd, 'local2.log')
@@ -96,8 +109,84 @@ class BrowserStackLocalTest < Minitest::Test
     assert_match /localhost\,8080\,0/, @bs_local.command
   end
 
+  # Regression for CWE-312: the public #command accessor must NOT expose the
+  # access key — callers routinely log it to CI output / APM / error trackers.
+  def test_command_redacts_access_key
+    bs = BrowserStack::Local.new("MY_SECRET_ACCESS_KEY")
+    refute_match /MY_SECRET_ACCESS_KEY/, bs.command
+    assert_match /\[REDACTED\]/, bs.command
+  end
+
+  # The real key must still reach the binary on the execution path.
+  def test_start_command_keeps_key_for_execution
+    bs = BrowserStack::Local.new("MY_SECRET_ACCESS_KEY")
+    assert_match /MY_SECRET_ACCESS_KEY/, bs.start_command
+  end
+
+  # Regression for CWE-312: default object inspection must not dump the key.
+  def test_inspect_redacts_access_key
+    bs = BrowserStack::Local.new("MY_SECRET_ACCESS_KEY")
+    refute_match /MY_SECRET_ACCESS_KEY/, bs.inspect
+    assert_match /\[REDACTED\]/, bs.inspect
+  end
+
   def teardown
     @bs_local.stop
+  end
+end
+
+# Regression tests for the logfile-creation step in Local#start (CWE-78).
+# The logfile used to be created with `system("echo ... > #{@logfile}")`, which
+# passed the caller-supplied path through a shell. These tests drive the public
+# `start` entry point but abort just after the logfile step (a fake binarypath
+# skips the download; stubbing start_command_args prevents launching the binary),
+# so they need no credentials, network, or tunnel.
+class BrowserStackLocalLogfileTest < Minitest::Test
+  class AbortAfterLogfile < StandardError; end
+
+  # Runs `start` with the given logfile value, aborting right after the logfile
+  # is created (before the real binary is spawned).
+  def start_up_to_logfile(logfile_value)
+    bs = BrowserStack::Local.new('dummy_key')
+    bs.stub(:start_command_args, ->(*) { raise AbortAfterLogfile }) do
+      begin
+        # An existing, harmless executable as binarypath skips the binary download.
+        bs.start('binarypath' => existing_executable, 'logfile' => logfile_value)
+      rescue AbortAfterLogfile
+        # expected: we intentionally stop before launching the binary
+      end
+    end
+  end
+
+  def existing_executable
+    ['/bin/true', '/usr/bin/true'].find { |p| File.executable?(p) } || RbConfig.ruby
+  end
+
+  def test_shell_metacharacters_in_logfile_path_are_not_executed
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        marker = File.join(dir, 'pwned')
+        # Unix payload: close the single quote around @logfile, run touch, reopen.
+        # Pre-fix this expands to: echo '' > 'log' ; touch <marker> ; echo 'x'
+        payload = "log' ; touch #{marker} ; echo 'x"
+
+        start_up_to_logfile(payload)
+
+        refute File.exist?(marker),
+               'shell metacharacters in the logfile path were executed (command injection)'
+      end
+    end
+  end
+
+  def test_logfile_path_is_treated_as_a_literal_filename
+    Dir.mktmpdir do |dir|
+      logfile = File.join(dir, 'sub', 'my log.txt') # spaces + missing subdir
+      start_up_to_logfile(logfile)
+
+      assert File.file?(logfile),
+             'the logfile should be created as a literal path, even with spaces / a missing dir'
+      assert_equal '', File.read(logfile), 'the logfile should be truncated to empty'
+    end
   end
 end
 
@@ -157,6 +246,62 @@ class BrowserStackLocalBinaryTest < Minitest::Test
     )
     assert_equal 'proxy.example.com', bin.instance_variable_get(:@proxy_host)
     assert_equal 8080, bin.instance_variable_get(:@proxy_port)
+  end
+
+  # Regression: verify_binary must exec the binary directly, never via a shell,
+  # so shell metacharacters in the cached-binary path cannot run commands (CWE-78).
+  def test_verify_binary_does_not_interpret_shell_metacharacters_in_path
+    marker = File.join(Dir.tmpdir, "bs_local_verify_injection_#{Process.pid}")
+    File.delete(marker) if File.exist?(marker)
+    injected = "/nonexistent;touch #{marker};echo BrowserStack Local version 9.9;#"
+
+    assert_equal false, BrowserStack::LocalBinary.new(auth_token: 'fake').send(:verify_binary, injected)
+    refute File.exist?(marker), 'shell metacharacters in the binary path were executed'
+  ensure
+    File.delete(marker) if marker && File.exist?(marker)
+  end
+
+  # Stronger form of the above: a REAL binary living under a hostile-looking
+  # directory name. Pins the array-form behaviour itself rather than just an
+  # ENOENT, so a future "fix" that swapped the array form for a character
+  # allowlist would fail here — the injected command must not run AND the
+  # legitimate binary at that path must still verify.
+  def test_verify_binary_runs_a_real_binary_at_a_path_containing_shell_metacharacters
+    skip 'needs a POSIX shell to stand in for the binary' if Gem.win_platform?
+
+    marker = File.join(Dir.tmpdir, "bs_local_verify_dir_injection_#{Process.pid}")
+    File.delete(marker) if File.exist?(marker)
+
+    base = Dir.mktmpdir('bs_local')
+    dir = File.join(base, "h;touch #{marker};echo BrowserStack Local version 9.9;#")
+    FileUtils.mkdir_p(dir)
+    bin = File.join(dir, 'BrowserStackLocal')
+    File.write(bin, "#!/bin/sh\necho 'BrowserStack Local version 9.9'\n")
+    FileUtils.chmod(0755, bin)
+
+    assert_equal true, BrowserStack::LocalBinary.new(auth_token: 'fake').send(:verify_binary, bin)
+    refute File.exist?(marker), 'shell metacharacters in the binary path were executed'
+  ensure
+    File.delete(marker) if marker && File.exist?(marker)
+    FileUtils.remove_entry(base) if base && File.directory?(base)
+  end
+
+  # Same fix, benign side: a legitimate path containing spaces must still verify
+  # (the shell used to split it and the check failed for every such user).
+  def test_verify_binary_accepts_a_path_containing_spaces
+    skip 'needs a POSIX shell to stand in for the binary' if Gem.win_platform?
+
+    base = Dir.mktmpdir('bs_local')
+    dir = File.join(base, 'my binary dir')
+    FileUtils.mkdir_p(dir)
+    bin = File.join(dir, 'BrowserStackLocal')
+    File.write(bin, "#!/bin/sh\necho 'BrowserStack Local version 9.9'\n")
+    FileUtils.chmod(0755, bin)
+
+    assert_includes bin, ' '
+    assert_equal true, BrowserStack::LocalBinary.new(auth_token: 'fake').send(:verify_binary, bin)
+  ensure
+    FileUtils.remove_entry(base) if base && File.directory?(base)
   end
 
   private
