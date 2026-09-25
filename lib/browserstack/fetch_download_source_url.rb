@@ -8,6 +8,34 @@ module BrowserStack
   module FetchDownloadSourceUrl
     BS_HOST = 'local.browserstack.com'.freeze
     ENDPOINT_PATH = '/binary/api/v1/endpoint'.freeze
+    ALLOWED_DOWNLOAD_HOSTS = ['browserstack.com'].freeze
+    ALLOWED_DOWNLOAD_HOST_SUFFIXES = ['.browserstack.com'].freeze
+
+    # Each guard below covers a case the final host-equals check does not:
+    #   - nil/empty URL: URI.parse(nil) raises TypeError before the rescue can catch it.
+    #   - URI::InvalidURIError: convert raw Ruby error into BrowserStack::LocalException for the public contract.
+    #   - HTTPS check: allowlist matches host only; without this, http://browserstack.com would pass.
+    #   - nil/empty host: uri.host is nil for URIs like https:///foo, which would crash on downcase.
+    def self.validate_source_url(url)
+      if url.nil? || url.to_s.empty?
+        raise BrowserStack::LocalException.new('Refusing binary download: empty source URL')
+      end
+      uri = begin
+        URI.parse(url)
+      rescue URI::InvalidURIError
+        raise BrowserStack::LocalException.new('Refusing binary download: malformed source URL')
+      end
+      unless uri.scheme == 'https'
+        raise BrowserStack::LocalException.new('Refusing binary download from non-HTTPS source URL')
+      end
+      host = (uri.host || '').downcase
+      if host.empty?
+        raise BrowserStack::LocalException.new('Refusing binary download: source URL has no host')
+      end
+      return url if ALLOWED_DOWNLOAD_HOSTS.include?(host)
+      return url if ALLOWED_DOWNLOAD_HOST_SUFFIXES.any? { |suffix| host.end_with?(suffix) }
+      raise BrowserStack::LocalException.new("Refusing binary download: host '#{host}' is not in the allowed host list")
+    end
 
     def self.call(auth_token:, user_agent:, fallback: false, error_message: nil,
                   proxy_host: nil, proxy_port: nil)
@@ -57,7 +85,7 @@ module BrowserStack
         )
       end
 
-      endpoint
+      validate_source_url(endpoint)
     end
   end
 end
